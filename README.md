@@ -25,7 +25,7 @@
 
 ### Clone repository
 ```bash
-git clone https://github.com/nayoung10/MOFFlow.git # clone repo
+git clone https://github.com/nayoung10/MOFFlow-2.git # clone repo
 cd MOFFlow
 ```
 
