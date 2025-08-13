@@ -1,0 +1,30 @@
+logger: wandb
+
+wandb:
+  name: ${experiment.name}
+  project: ${experiment.project}
+  save_dir: ${paths.logger_dir}
+wandb_watch:
+  log: 'all'
+  log_freq: 500
+
+tensorboard:
+  name: tensorboard
+  version: ${experiment.project}/${experiment.name}
+  save_dir: ${paths.logger_dir}
+  log_graph: False
+  default_hp_metric: True
+
+callbacks:
+  tensorboard:
+    log_freq: 1
+    log_grad_hist: False
+    log_weight_hist: False
+    log_grad_norm: True
+    log_weight_norm: True
+    log_norm_input: True
+
+hydra:
+  run:
+    dir: ${paths.log_dir}
+  

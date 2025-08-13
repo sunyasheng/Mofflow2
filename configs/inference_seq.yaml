@@ -1,0 +1,18 @@
+# Configuration for generating samples
+defaults:
+  - base
+  - _self_
+  - paths
+
+inference:
+  ckpt_path: null
+  seed: 123
+
+  total_samples: 10000
+  batch_size: 100
+  max_seq_len: 2048
+  temperature: 1.0
+  
+hydra:
+  run:
+    dir: ${paths.inference_dir}

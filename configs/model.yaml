@@ -1,0 +1,53 @@
+model:
+  init_mode: '1in5out'
+  corrupt_trans: ${experiment.training.corrupt_trans}
+  corrupt_rots: ${experiment.training.corrupt_rots}
+  corrupt_lattice: ${experiment.training.corrupt_lattice}
+  corrupt_torsions: ${experiment.training.corrupt_torsions}
+  initialize_cfg:
+    max_atom_types: 100
+    atom_type_dim: 64
+    atom_feats_dim: 39
+    time_embed_dim: 64
+    coords_feats_dim: 64
+    node_embed_dim: ${model.node_embed_dim}
+    add_pos_embed: True
+  node_embed_dim: 1024
+  interaction_cfg:
+    num_layers: 10
+    max_radius: 50
+    max_neighbors: 130
+    dist_embed_dim: 128
+    trans_encoder_cfg:
+      ln_mode: 'pre' # ['pre', 'post']
+      init_mode: ${model.init_mode}
+      dropout: 0.0
+      ffn_bias: False
+      norm: 'rmsnorm' # ['layernorm', 'rmsnorm']
+      attention:
+        node_embed_dim: ${model.node_embed_dim}
+        dist_embed_dim: ${model.interaction_cfg.dist_embed_dim}
+        no_heads: 16
+      encoder:
+        ffn_dim: ${eval:'4 * ${model.node_embed_dim}'}
+  pool_cfg:
+    node_embed_dim: ${model.node_embed_dim}
+    max_radius: .inf
+    max_neighbors: 1000
+    gaussian:
+      max_radius: 20
+      dist_embed_dim: 128
+    no_heads: 16
+  output_model_cfg:
+    torsion:
+      normalize: False
+      node_embed_dim: ${model.node_embed_dim}
+      max_radius: 5
+      max_neighbors: 24
+      gaussian:
+        max_radius: 5
+        dist_embed_dim: 128
+      no_heads: 16
+    rotation:
+      node_embed_dim: ${model.node_embed_dim}
+      use_svd: False

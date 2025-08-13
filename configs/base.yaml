@@ -1,0 +1,144 @@
+defaults:
+  - _self_
+  - model
+  - paths
+  - lattice
+  - logger
+
+preprocess:
+  task: csp # [gen, csp]
+  num_cpus: 60
+  lmdb_dir: ${paths.data_dir}/lmdb
+  split_dir: ${paths.data_dir}/splits
+  metal_dir: ${paths.data_dir}/metals
+  seq_dir: ${paths.data_dir}/seqs
+  filter:
+    num_cpus: 16
+    max_bbs: 20
+    max_atoms: 200
+    max_cps: 20
+    prop_list: 
+    - working_capacity_vacuum_swing [mmol/g]
+    - working_capacity_temperature_swing [mmol/g]
+  mof_matcher:
+    optimizer:
+      steps: 200
+      popsize: 20
+      maxiter: 20
+    tolerance: # default (0.2, 0.3, 5.0), paper (0.3, 0.5, 10.0)
+      ltol: 0.2
+      stol: 0.5
+      angle_tol: 5.0
+  mof_checker:
+    use_matched_coords: True
+
+data:
+  train_sample_limit: null
+  val_sample_limit: null
+  test_sample_limit: null
+  dataset_prefix: MetalOxo_final
+  lmdb_dir: ${paths.data_dir}/lmdb/${experiment.task}
+  split_dir: ${paths.data_dir}/splits
+  rot_symmetry: True
+
+  corrupt_trans: ${experiment.training.corrupt_trans}
+  corrupt_rots: ${experiment.training.corrupt_rots}
+  corrupt_lattice: ${experiment.training.corrupt_lattice}
+  corrupt_torsions: ${experiment.training.corrupt_torsions}
+
+  # Timestep distribution
+  t_sample_dist: 'uniform' # ['uniform', 'logit_normal']
+  t_uniform:
+    t_min: 0.0
+    t_max: 1.0
+  t_logit_normal:
+    mean: -0.5
+    std: 1.0
+
+  lattice:
+    lognormal:
+      loc: ${lattice.lognormal.loc}
+      scale: ${lattice.lognormal.scale}
+    uniform:
+      low: 60.0
+      high: 120.0
+      eps: 0.1
+
+  loader:
+    sampler: dynamic # [null, 'overfit' 'dynamic']
+    overfit:
+      num_samples: 100000
+    dynamic:
+      max_num_atoms: 1500
+      max_batch_size: null
+    num_workers: 32
+    prefetch_factor: 10
+    batch_size:
+      train: 128
+      valid: 64
+      predict: 32
+
+experiment:
+  task: csp # [gen, csp]
+  project: mof-${experiment.task}
+  name: test
+  debug: False
+  seed: 123
+  num_devices: 8
+  warm_start: null
+  warm_start_cfg_override: True
+  visualize_freq: 1000
+  use_ema: False
+  ema: 
+    decay: 0.999
+    apply_ema_every_n_steps: 1
+    start_step: 0
+    evaluate_ema_weights_instead: False
+  training:
+    corrupt_trans: True
+    corrupt_rots: True
+    corrupt_lattice: True
+    corrupt_torsions: True
+    translation_loss_weight: 3.0
+    rotation_loss_weight: 1.0
+    lattice_loss_weight: 1.0
+    torsion_angle_loss_weight: 1.0
+    torsion_norm_loss_weight: 0.005
+    t_normalize_clip: 0.9
+  optimizer:
+    lr: 1e-5
+    betas:
+      - 0.9
+      - 0.98
+    eps: 1e-8
+    weight_decay: 0.0
+  lr_scheduler_type: null # [null, 'linear_warmup', 'reduce_on_plateau']
+  lr_scheduler:
+    linear_warmup:
+      warmup_epochs: 10
+      min_lr: 1e-7
+    reduce_on_plateau:
+      factor: 0.6
+      patience: 10
+      min_lr: 1e-7
+  trainer:
+    overfit_batches: 0
+    min_epochs: 10 # prevents early stopping
+    max_epochs: -1
+    accelerator: gpu
+    log_every_n_steps: 1
+    deterministic: False
+    strategy: ddp
+    val_check_interval: 1.0
+    check_val_every_n_epoch: 1
+    accumulate_grad_batches: 1
+    gradient_clip_val: 10.0
+  checkpointer:
+    dirpath: ${paths.ckpt_dir}
+    filename: epoch_{epoch}-step_{step}-loss_{train/loss:.4f}
+    auto_insert_metric_name: False
+    save_last: True
+    save_top_k: 10
+    # every_n_train_steps: 5000
+    monitor: step
+    mode: max

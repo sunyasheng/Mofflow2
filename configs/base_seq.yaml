@@ -1,0 +1,108 @@
+defaults:
+  - _self_
+  - paths
+
+data:
+  train_sample_limit: null
+  val_sample_limit: null
+  seq_dir: ${paths.data_dir}/seqs
+  dataset_prefix: 'mof_sequence'
+  vocab_path: ${data.seq_dir}/vocab.json
+  max_len: null
+
+  loader:
+    num_workers: 16
+    prefetch_factor: 10
+    max_tokens: 8000
+    max_batch_size: null
+
+model:
+  max_seq_len: 2048
+  attention:
+    dim: 1024
+    depth: 6
+    heads: 8
+    rotary_pos_emb: True
+    attn_flash: True
+    use_scalenorm: True
+
+experiment:
+  project: mof-seq
+  name: test
+  debug: False
+  seed: 123
+  num_devices: 8
+  warm_start: null
+  warm_start_cfg_override: True
+  sample_seq_freq: 500
+  use_ema: False
+  ema: 
+    decay: 0.999
+    apply_ema_every_n_steps: 1
+    start_step: 0
+    evaluate_ema_weights_instead: True
+  optimizer:
+    lr: 3e-4
+    betas:
+      - 0.9
+      - 0.999
+    eps: 1e-8
+    weight_decay: 0.0
+  lr_scheduler_type: null # [null, 'linear_warmup', 'reduce_on_plateau']
+  lr_scheduler:
+    linear_warmup:
+      warmup_epochs: 10
+      min_lr: 1e-7
+    reduce_on_plateau:
+      factor: 0.6
+      patience: 10
+      min_lr: 1e-6
+  trainer:
+    overfit_batches: 0
+    min_epochs: 10 # prevents early stopping
+    max_epochs: 20
+    accelerator: gpu
+    log_every_n_steps: 1
+    deterministic: False
+    strategy: ddp
+    val_check_interval: 1.0
+    check_val_every_n_epoch: 1
+    accumulate_grad_batches: 1
+    gradient_clip_val: 1.0
+  checkpointer:
+    dirpath: ${paths.ckpt_dir}
+    monitor: step
+    save_last: True
+    save_top_k: 5
+    # every_n_train_steps: 5000
+    filename: epoch_{epoch}-step_{step}-loss_{valid/loss:.4f}
+    auto_insert_metric_name: False
+    mode: max
+
+logger: wandb
+wandb:
+  name: ${experiment.name}
+  project: ${experiment.project}
+  save_dir: ${paths.logger_dir}
+wandb_watch:
+  log: 'all'
+  log_freq: 500
+tensorboard:
+  name: tensorboard
+  version: ${experiment.project}/${experiment.name}
+  save_dir: ${paths.logger_dir}
+  log_graph: False
+  default_hp_metric: True
+callbacks:
+  tensorboard:
+    log_freq: ${experiment.trainer.log_every_n_steps}
+    log_grad_hist: False
+    log_weight_hist: False
+    log_grad_norm: True
+    log_weight_norm: True
+    log_norm_input: True
+
+hydra:
+  run:
+    dir: ${paths.log_dir}
+  

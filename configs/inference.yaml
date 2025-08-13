@@ -1,0 +1,36 @@
+# Configuration for generating samples
+defaults:
+  - base
+  - _self_
+  - paths
+
+inference:
+  ckpt_path: null
+  seed: 123
+  task: csp # [gen, csp]
+
+  csp:
+    split: test
+
+  gen:
+    metal_lib_path: null # data/metals/gen/metal_lib_train.pkl
+    mof_seqs_path: null # path/to/preds_samples-10000.json
+    sample_limit: null
+
+  num_devices: 8
+  num_samples: 1
+  
+  trainer:
+    accelerator: gpu
+    strategy: ddp
+    logger: false
+    enable_checkpointing: false
+    devices: ${inference.num_devices}
+
+  sampler:
+    min_t: 0.0
+    num_timesteps: 50
+
+hydra:
+  run:
+    dir: ${paths.inference_dir}
