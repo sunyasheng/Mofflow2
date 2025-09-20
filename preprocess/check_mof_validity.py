@@ -109,7 +109,7 @@ class CheckMOF:
             json.dump(counters, f, indent=2)
 
         # Write valid MOFs to LMDB
-        dest_env = write_lmdb(f"{base_dir}/MetalOxo_mofchecker_{split}.lmdb")
+        dest_env = write_lmdb(f"{base_dir}/MetalOxo_final_{split}.lmdb")
         with dest_env.begin(write=True) as dest_txn:
             for idx, value in tqdm(filtered_list):
                 if value is not None:

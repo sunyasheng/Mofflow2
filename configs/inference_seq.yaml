@@ -1,6 +1,6 @@
 # Configuration for generating samples
 defaults:
-  - base
+  - base_seq
   - _self_
   - paths
 
@@ -12,6 +12,9 @@ inference:
   batch_size: 100
   max_seq_len: 2048
   temperature: 1.0
+
+  # Conditional generation
+  target_property: 2.0 # Set to float value for conditional generation (e.g., 2.0, 4.0, etc.)
   
 hydra:
   run:

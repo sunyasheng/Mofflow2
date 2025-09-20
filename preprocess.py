@@ -90,12 +90,11 @@ PREPROCESSING_STEPS = [
 
 def main():
     parser = argparse.ArgumentParser(description='Run MOFFlow preprocessing pipeline.')
-    parser.add_argument('--task', choices=['csp', 'gen'], required=True, help='Task type: csp or gen')
     parser.add_argument('--mof-matching-repeat', type=int, default=3, help='Number of times to repeat the MOF matching step (default: 3)')
-    parser.add_argument('--skip-baseline', action='store_true', default=True, help='Skip baseline format conversion steps')
+    parser.add_argument('--run-conversion', action='store_true', help='Run the optional baseline format conversion steps.')
     args = parser.parse_args()
 
-    print(f"Running preprocessing for task: {args.task}\n")
+    print("Starting preprocessing pipeline...\n")
 
     # Update the repeat count for the MOF matching step (Step 4)
     for step in PREPROCESSING_STEPS:
@@ -103,8 +102,8 @@ def main():
             step['repeat'] = args.mof_matching_repeat
 
     for step in PREPROCESSING_STEPS:
-        # Optionally skip baseline conversion
-        if args.skip_baseline and step.get('optional'):
+        # Skip baseline conversion by default
+        if step.get('optional') and not args.run_conversion:
             continue
         repeat = step.get('repeat', 1)
         for i in range(repeat):

@@ -1,9 +1,7 @@
 import os
 import json
-import pickle
 import torch
 from torch.utils.data import Dataset
-from utils.lmdb import read_lmdb
 from data.tokenizer import SmilesTokenizer
 from pytorch_lightning.utilities.rank_zero import rank_zero_info
 
@@ -57,7 +55,8 @@ class MOFSequenceDataset(Dataset):
         return len(self.dataset)
 
     def __getitem__(self, idx):
-        mof_seq = self.dataset[idx]
+        mof_dict = self.dataset[idx]
+        mof_seq, prop = mof_dict['seq'], mof_dict['prop']
         token_ids = self.tokenizer.encode(mof_seq)
 
         if self.max_len is not None:
@@ -65,5 +64,6 @@ class MOFSequenceDataset(Dataset):
 
         input_ids = torch.tensor(token_ids[:-1], dtype=torch.long)
         target_ids = torch.tensor(token_ids[1:], dtype=torch.long)
+        prop = torch.tensor([prop], dtype=torch.float32)
 
-        return input_ids, target_ids
+        return input_ids, target_ids, prop

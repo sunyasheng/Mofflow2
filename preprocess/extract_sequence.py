@@ -12,13 +12,16 @@ from tqdm import tqdm
 from joblib import Parallel, delayed
 from omegaconf import DictConfig
 from utils import molecule as mu
-from utils.lmdb import read_lmdb, write_lmdb
 from utils.environment import PROJECT_ROOT
 
 
 class ExtractSequence:
     def __init__(self, cfg: DictConfig):
         process_cfg = cfg.preprocess
+
+        # Task specific settings
+        self.task = 'gen'
+        self.prop_name = process_cfg.mof_sequence.prop_name
 
         # Directories
         self.lmdb_dir = process_cfg.lmdb_dir
@@ -69,12 +72,15 @@ class ExtractSequence:
             organic_str = ".".join(organic_smiles)
             mof_sequence = f"<BOS> {metal_str} <SEP> {organic_str} <EOS>"
 
-            return idx, mof_sequence
+            # Extract property
+            prop_value = feats['prop_dict'].get(self.prop_name, None)
+
+            return idx, (mof_sequence, prop_value)
             
         except Exception as e:
             print(f"Failed to process {idx}: {e}")
             return idx, None
-    
+
     def process(self, split='train'):
         print(f"INFO:: Extracting sequences for {split} split...")
 
@@ -83,7 +89,7 @@ class ExtractSequence:
 
         # Read data
         data_dict = {}
-        src_env = read_lmdb(f"{self.lmdb_dir}/MetalOxo_final_{split}.lmdb")
+        src_env = read_lmdb(f"{self.lmdb_dir}/{self.task}/MetalOxo_final_{split}.lmdb")
         with src_env.begin() as src_txn:
             num_entries = src_env.stat()['entries']
             cursor = src_txn.cursor()
@@ -99,11 +105,19 @@ class ExtractSequence:
         )
 
         # Write as json
-        all_results = {idx: result for idx, result in all_results if result is not None}
+        result_dict = {}
+        for idx, result in all_results:
+            if result is not None:
+                seq, prop = result
+                if prop is not None:
+                    result_dict[idx] = {
+                        "seq": seq,
+                        "prop": prop
+                    }
         with open(f"{self.seq_dir}/mof_sequence_{split}.json", 'w') as f:
-            json.dump(all_results, f)
+            json.dump(result_dict, f)
 
-        print(f"INFO:: Wrote {len(all_results)} entries to {self.seq_dir}/mof_sequence_{split}.json")
+        print(f"INFO:: Wrote {len(result_dict)} entries to {self.seq_dir}/mof_sequence_{split}.json")
         print(f"INFO:: Time taken: {time.time() - start_time:.4f} s")
 
 

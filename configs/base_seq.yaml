@@ -17,6 +17,7 @@ data:
     max_batch_size: null
 
 model:
+  conditional: false # Set to true for conditional generation
   max_seq_len: 2048
   attention:
     dim: 1024

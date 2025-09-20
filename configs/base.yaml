@@ -31,6 +31,8 @@ preprocess:
       angle_tol: 5.0
   mof_checker:
     use_matched_coords: True
+  mof_sequence:
+    prop_name: working_capacity_vacuum_swing [mmol/g]
 
 data:
   train_sample_limit: null

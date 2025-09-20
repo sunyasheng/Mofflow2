@@ -30,12 +30,23 @@ class Predictor:
         ckpt_dir = os.path.dirname(ckpt_path)
         ckpt_cfg = OmegaConf.load(os.path.join(ckpt_dir, 'config.yaml'))
 
-        # Setup output directory
-        epoch_num = Path(ckpt_path).stem.split('-')[0].split('_')[1]
+        ##### Setup output directory #####
         temperature = cfg.inference.temperature
-        self.inference_dir = Path(ckpt_path).parents[1] / 'inference' / f"epoch_{epoch_num}" / f"temperature_{temperature}"
+        dir_name = f"temp_{temperature}"
+
+        # Append target property if conditional
+        is_model_conditional = ckpt_cfg.model.get('conditional', False)
+        if is_model_conditional:
+            target_prop = cfg.inference.get('target_property', 'unspecified')
+            dir_name += f"_target-{target_prop}"
+        else:
+            dir_name += "_unconditional"
+        
+        # Create inference directory
+        self.inference_dir = Path(ckpt_path).parents[1] / 'inference' / dir_name
         self.inference_dir.mkdir(parents=True, exist_ok=True)
         log.info(f'Saving results to {self.inference_dir}')
+        ##################################
 
         # Merge configs
         OmegaConf.set_struct(cfg, False)
@@ -56,7 +67,6 @@ class Predictor:
         if self._infer_cfg.seed is not None:
             log.info(f'Setting seed to {self._infer_cfg.seed}')
             seed_everything(self._infer_cfg.seed, workers=True)
-        
 
         # Setup tokenizer
         self._tokenizer = self._setup_tokenizer()
@@ -90,6 +100,20 @@ class Predictor:
         eos_token = self._tokenizer.vocab["<EOS>"]
         pad_token = self._tokenizer.vocab["<PAD>"]
 
+        # Target property
+        context = None
+        if self._cfg.model.get('conditional', False):
+            target = self._infer_cfg.get('target_property')
+            if target is None:
+                raise ValueError("Target property must be specified for conditional generation.")
+            
+            log.info(f"Preparing conditional generation with target property: {target}")
+            target_value = torch.full((batch_size, 1), target, dtype=torch.float32, device=self._device)
+
+            # Embed property
+            context = self._module.prop_linear(target_value) + self._module.prop_fourier(target_value)
+            context = context.unsqueeze(1)  # [B, 1, dim]
+
         log.info(f'Predicting {self._infer_cfg.total_samples} samples...')
         all_sequences = []
         with torch.no_grad():
@@ -109,6 +133,7 @@ class Predictor:
                     seq_len=max_seq_len,
                     eos_token=eos_token,
                     temperature=temperature,
+                    context=context,
                 )
 
                 decoded = ["".join(self._tokenizer.decode(seq.tolist())) for seq in generated]

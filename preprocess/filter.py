@@ -75,10 +75,11 @@ def process_one(idx, value, max_bbs=20, max_atoms=200, max_cps=20, prop_list=Non
 
     # Add properties
     data['y'] = torch.tensor([data.prop_dict[prop] for prop in prop_list], dtype=torch.float32).view(1, -1)
+    data['prop_dict'] = {prop: data.prop_dict[prop] for prop in prop_list}
 
     # Check criteria
     if mof_criterion(data, max_bbs) and all(bb_criterion(bb, max_atoms, max_cps) for bb in data.bbs):
-        return idx, value
+        return idx, pickle.dumps(data)
     else:
         return idx, None
 

@@ -104,7 +104,7 @@ def main(cif_path, num_cpus, csv_path):
     print(f"Final VNU:   {df['final_vnu'].sum()}/{len(df)} ({df['final_vnu'].mean() * 100:.2f}%)")
     print(f"Final novel bb: {df['final_novel_bb'].sum()}/{len(df)} ({df['final_novel_bb'].mean() * 100:.2f}%)")
 
-    csv_dir = Path(csv_path).parent
+    csv_dir = Path(cif_path).parent
     df.to_csv(csv_dir / "final_vnu.csv", index=False)
     print("INFO:: Saving results to", os.path.join(csv_dir, "final_vnu.csv"))
 

@@ -6,6 +6,7 @@ from torch.nn import init
 from torch.nn import functional as F
 from utils import data as du
 
+
 def custom_xavier_init(tensor, gain=1.0, mode='default'):
     fan_in, fan_out = init._calculate_fan_in_and_fan_out(tensor)
     
@@ -20,6 +21,7 @@ def custom_xavier_init(tensor, gain=1.0, mode='default'):
     
     with torch.no_grad():
         return tensor.normal_(0, std * gain)
+
 
 def calc_distogram(pos, min_bin, max_bin, num_bins):
     dists_2d = torch.linalg.norm(
@@ -103,6 +105,19 @@ class GaussianSmearing(nn.Module):
     def forward(self, dist):
         dist = dist.view(-1, 1) - self.offset.view(1, -1)
         return torch.exp(self.coeff * torch.pow(dist, 2))
+
+
+class Fourier(nn.Module):
+    def __init__(self, embedding_size=256, bandwidth=1.0):
+        super().__init__()
+        self.bandwidth = bandwidth
+        self.frequencies = nn.Parameter(torch.randn(embedding_size), requires_grad=False)
+        self.phases = nn.Parameter(torch.rand(embedding_size), requires_grad=False)
+
+    def forward(self, a):
+        b = (2 * torch.pi) * (self.bandwidth * a * self.frequencies + self.phases)  # shape: (b, seq_len, embedding_size)
+        return torch.cos(b)  # shape: (b, seq_len, embedding_size)
+
 
 class LinearWarmupScheduler(torch.optim.lr_scheduler._LRScheduler):
     def __init__(self, optimizer, warmup_epochs, min_lr=0.0, last_iter=-1):

@@ -26,7 +26,7 @@ def collate_fn(batch, pad_token_id: int = 0):
         - target_ids: Tensor of shape (batch_size, max_seq_len)
         - attention_mask: Tensor of shape (batch_size, max_seq_len)
     """
-    input_ids, target_ids = zip(*batch)
+    input_ids, target_ids, props = zip(*batch)
 
     # Pad to the longest sequence in the batch
     input_ids_padded = pad_sequence(input_ids, batch_first=True, padding_value=pad_token_id)
@@ -35,10 +35,14 @@ def collate_fn(batch, pad_token_id: int = 0):
     # Build attention mask (1 for real token, 0 for pad)
     attention_mask = (input_ids_padded != pad_token_id).bool()
 
+    # Stack properties
+    props_tensor = torch.stack(props, dim=0)
+
     return {
         "input_ids": input_ids_padded,
         "target_ids": target_ids_padded,
         "attention_mask": attention_mask,
+        "props": props_tensor
     }
 
 class OverfitSampler(Sampler):
