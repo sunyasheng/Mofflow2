@@ -17,7 +17,7 @@ inference:
     mof_seqs_path: null # path/to/preds_samples-10000.json
     sample_limit: null
 
-  num_devices: 8
+  num_devices: 1
   num_samples: 1
   
   trainer:
