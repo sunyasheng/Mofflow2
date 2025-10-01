@@ -36,10 +36,10 @@ class Predictor:
         self.inference_dir.mkdir(parents=True, exist_ok=True)
         log.info(f'Saving results to {self.inference_dir}')
 
-        # Merge configs
+        # Merge configs - merge checkpoint config first, then override with command line args
         OmegaConf.set_struct(cfg, False)
         OmegaConf.set_struct(ckpt_cfg, False)
-        cfg = OmegaConf.merge(cfg, ckpt_cfg)
+        cfg = OmegaConf.merge(ckpt_cfg, cfg)
 
         # Set config
         self._cfg = cfg
