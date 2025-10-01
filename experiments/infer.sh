@@ -7,8 +7,8 @@
 
 
 PYTHONPATH=/ibex/user/suny0a/Proj/MOFFlow-2 python experiments/predict_seq.py \
-    inference.ckpt_path /ibex/user/suny0a/Proj/MOFFlow-2/logs/mof-csp/seq/ckpt/last.ckpt \
-    inference.total_samples 5
+    inference.ckpt_path=/ibex/user/suny0a/Proj/MOFFlow-2/logs/mof-csp/seq/ckpt/last.ckpt \
+    inference.total_samples=5
 
 # PYTHONPATH=/ibex/user/suny0a/Proj/MOFFlow-2 python experiments/predict.py \
 #     inference.ckpt_path=/ibex/user/suny0a/Proj/MOFFlow-2/logs/mof-csp/seq/ckpt/last.ckpt \
