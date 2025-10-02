@@ -15,13 +15,3 @@ PYTHONPATH=$PYTHONPATH python io/pt_to_cif.py \
     --num_samples 1 \
     --num_cpus 4
 
-echo "Conversion completed!"
-echo "CIF files saved to: /ibex/user/suny0a/Proj/MOFFlow-2/logs/mof-csp/seq/inference/cif/"
-echo ""
-echo "To view in VESTA:"
-echo "1. Download the CIF files from the server"
-echo "2. Open VESTA"
-echo "3. File -> Open -> Select the .cif files"
-echo ""
-echo "CIF files location:"
-find /ibex/user/suny0a/Proj/MOFFlow-2/logs/mof-csp/seq/inference/cif/ -name "*.cif" 2>/dev/null || echo "CIF files will be created after running this script"
