@@ -36,10 +36,10 @@ class Predictor:
         self.inference_dir.mkdir(parents=True, exist_ok=True)
         log.info(f'Saving results to {self.inference_dir}')
 
-        # Merge configs - merge checkpoint config first, then override with command line args
+        # Merge configs
         OmegaConf.set_struct(cfg, False)
         OmegaConf.set_struct(ckpt_cfg, False)
-        cfg = OmegaConf.merge(ckpt_cfg, cfg)
+        cfg = OmegaConf.merge(cfg, ckpt_cfg)
 
         # Set config
         self._cfg = cfg
@@ -73,10 +73,6 @@ class Predictor:
                 dataset_cfg=self._data_cfg,
                 split=self._infer_cfg.csp.split,
             )
-            # Limit dataset size for testing
-            if hasattr(self._data_cfg, 'test_sample_limit') and self._data_cfg.test_sample_limit is not None:
-                pred_dataset.keys = pred_dataset.keys[:self._data_cfg.test_sample_limit]
-                print(f"INFO:: Limiting test split to {len(pred_dataset.keys)} samples.")
         elif self._infer_cfg.task == 'gen':
             gen_cfg = self._infer_cfg.gen
             pred_dataset = MOFGenDataset(
