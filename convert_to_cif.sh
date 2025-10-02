@@ -5,8 +5,8 @@
 echo "Converting .pt files to CIF format for VESTA visualization..."
 
 # 设置路径
-# PREDICTION_PATH="/ibex/user/suny0a/Proj/MOFFlow-2/logs/mof-csp/seq/inference/predictions_*.pt"
-PREDICTION_PATH="/ibex/user/suny0a/Proj/MOFFlow-2/logs/gen/inference/predictions_*.pt"
+PREDICTION_PATH="/ibex/user/suny0a/Proj/MOFFlow-2/logs/mof-csp/seq/inference/predictions_*.pt"
+# PREDICTION_PATH="/ibex/user/suny0a/Proj/MOFFlow-2/logs/gen/inference/predictions_*.pt"
 PYTHONPATH="/ibex/user/suny0a/Proj/MOFFlow-2"
 
 # 转换为CIF
