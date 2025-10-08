@@ -13,7 +13,7 @@ CKPT_PATH="$PROJECT_ROOT/logs/gen/sp_module/epoch_200-step_414498-loss_0.8644.ck
 # CKPT_PATH="$PROJECT_ROOT/logs/mof-csp/seq/ckpt/epoch_1-step_28038-loss_2.7838.ckpt"  # 你的训练模型
 
 METAL_LIB_PATH="$PROJECT_ROOT/data/metals/metal_lib_train.pkl"
-SEQ_PATH="$PROJECT_ROOT/logs/mof-seq/seq_1step/inference/temp_1.0_unconditional/preds_samples-5.json"
+SEQ_PATH="$PROJECT_ROOT/logs/mof-seq/seq_1step/inference/temp_1.0_unconditional/preds_samples-250.json"
 
 # 动态计算输出路径 (根据检查点路径)
 # 从 /logs/gen/sp_module/xxx.ckpt 得到 /logs/gen/inference/
@@ -34,7 +34,7 @@ PYTHONPATH="$PROJECT_ROOT" python experiments/predict.py \
     inference.ckpt_path="$CKPT_PATH" \
     +inference.gen.metal_lib_path="$METAL_LIB_PATH" \
     +inference.gen.mof_seqs_path="$SEQ_PATH" \
-    inference.num_samples=1 \
+    inference.num_samples=250 \
     inference.sampler.num_timesteps=50
 
 # 检查第一步是否成功
@@ -48,7 +48,7 @@ if [ $? -eq 0 ]; then
     
     PYTHONPATH="$PROJECT_ROOT" python io/pt_to_cif.py \
         --save_pt "$PREDICTION_PATH" \
-        --num_samples 1 \
+        --num_samples 250 \
         --num_cpus 4
     
     # 检查第二步是否成功
