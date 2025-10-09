@@ -15,6 +15,13 @@ CKPT_PATH="$PROJECT_ROOT/logs/gen/sp_module/epoch_200-step_414498-loss_0.8644.ck
 METAL_LIB_PATH="$PROJECT_ROOT/data/metals/metal_lib_train.pkl"
 SEQ_PATH="$PROJECT_ROOT/logs/mof-seq/seq_1step/inference/temp_1.0_unconditional/preds_samples-250.json"
 
+# 删除旧的processed_data.pkl文件，强制重新处理250个序列
+PROCESSED_DATA_PATH="$PROJECT_ROOT/logs/mof-seq/seq_1step/inference/temp_1.0_unconditional/processed_data.pkl"
+if [ -f "$PROCESSED_DATA_PATH" ]; then
+    echo "删除旧的processed_data.pkl文件，强制重新处理250个序列..."
+    rm "$PROCESSED_DATA_PATH"
+fi
+
 # 动态计算输出路径 (根据检查点路径)
 # 从 /logs/gen/sp_module/xxx.ckpt 得到 /logs/gen/inference/
 CKPT_DIR=$(dirname "$CKPT_PATH")           # /logs/gen/sp_module
