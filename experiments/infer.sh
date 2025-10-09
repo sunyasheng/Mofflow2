@@ -34,7 +34,7 @@ PYTHONPATH="$PROJECT_ROOT" python experiments/predict.py \
     inference.ckpt_path="$CKPT_PATH" \
     +inference.gen.metal_lib_path="$METAL_LIB_PATH" \
     +inference.gen.mof_seqs_path="$SEQ_PATH" \
-    inference.num_samples=250 \
+    inference.num_samples=3 \
     inference.sampler.num_timesteps=50
 
 # 检查第一步是否成功
@@ -48,7 +48,7 @@ if [ $? -eq 0 ]; then
     
     PYTHONPATH="$PROJECT_ROOT" python io/pt_to_cif.py \
         --save_pt "$PREDICTION_PATH" \
-        --num_samples 250 \
+        --num_samples 3 \
         --num_cpus 4
     
     # 检查第二步是否成功
