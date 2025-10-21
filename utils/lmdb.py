@@ -1,7 +1,12 @@
 import lmdb
 import pickle
+import os
 
 def write_lmdb(lmdb_path):
+    # Ensure parent directory exists when using subdir=False
+    parent_dir = os.path.dirname(lmdb_path)
+    if parent_dir:
+        os.makedirs(parent_dir, exist_ok=True)
     env = lmdb.open(
         lmdb_path, 
         subdir=False,
