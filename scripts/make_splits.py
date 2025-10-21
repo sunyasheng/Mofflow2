@@ -3,6 +3,7 @@ import os
 from typing import List
 
 import numpy as np
+from tqdm import tqdm
 
 from utils.lmdb import read_lmdb
 
@@ -15,10 +16,14 @@ def read_integer_keys(lmdb_path: str) -> List[int]:
     consistent with MOFDiff/MOFFlow dataset conventions.
     """
     env = read_lmdb(lmdb_path)
+    num_entries = env.stat().get('entries', None)
     keys: List[int] = []
     with env.begin(buffers=True) as txn:
         cursor = txn.cursor()
-        for key_bytes, _ in cursor:
+        iterator = cursor
+        if num_entries is not None:
+            iterator = tqdm(cursor, desc="Scanning LMDB keys", total=num_entries)
+        for key_bytes, _ in iterator:
             try:
                 key_int = int(key_bytes.decode("ascii"))
             except Exception:
