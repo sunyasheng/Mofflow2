@@ -8,12 +8,13 @@ from tqdm import tqdm
 from utils.lmdb import read_lmdb
 
 
-def read_integer_keys(lmdb_path: str) -> List[int]:
+def read_integer_keys(lmdb_path: str, print_count: int = 0, print_raw: bool = False) -> List[int]:
     """
     Read all LMDB keys and return them as a list of integers.
 
     Assumes keys are stored as ASCII strings representing integer indices,
     consistent with MOFDiff/MOFFlow dataset conventions.
+    Optionally prints the first N scanned keys for debugging.
     """
     env = read_lmdb(lmdb_path)
     num_entries = env.stat().get('entries', None)
@@ -23,13 +24,30 @@ def read_integer_keys(lmdb_path: str) -> List[int]:
         iterator = cursor
         if num_entries is not None:
             iterator = tqdm(cursor, desc="Scanning LMDB keys", total=num_entries)
+        printed = 0
         for key_bytes, _ in iterator:
+            key_str = None
+            parsed_int = None
+            # Try to decode as ASCII string
             try:
-                key_int = int(key_bytes.decode("ascii"))
+                key_str = key_bytes.decode("ascii")
             except Exception:
-                # Fallback: skip non-integer keys
-                continue
-            keys.append(key_int)
+                key_str = None
+            # Try to parse integer
+            if key_str is not None:
+                try:
+                    parsed_int = int(key_str)
+                except Exception:
+                    parsed_int = None
+            if parsed_int is not None:
+                keys.append(parsed_int)
+            # Debug printing of keys
+            if print_count and printed < print_count:
+                if print_raw:
+                    print(f"DEBUG:: key_raw='{key_str}' parsed_int={parsed_int}")
+                else:
+                    print(f"DEBUG:: parsed_int={parsed_int}")
+                printed += 1
     env.close()
     return keys
 
@@ -39,6 +57,7 @@ def write_split_file(path: str, indices: List[int]) -> None:
     with open(path, "w") as f:
         for idx in indices:
             f.write(f"{idx}\n")
+
 
 
 def main() -> None:
@@ -71,11 +90,23 @@ def main() -> None:
         action="store_true",
         help="Allow overwriting existing split files",
     )
+    parser.add_argument(
+        "--print-keys",
+        type=int,
+        default=0,
+        help="Print first N keys during scan for debugging (default: 0)",
+    )
+    parser.add_argument(
+        "--print-raw",
+        action="store_true",
+        help="Print raw decoded key strings (default: print parsed integers)",
+    )
+
     args = parser.parse_args()
 
     # Read keys
     print(f"Reading keys from: {args.lmdb_path}")
-    keys = read_integer_keys(args.lmdb_path)
+    keys = read_integer_keys(args.lmdb_path, print_count=args.print_keys, print_raw=args.print_raw)
     if not keys:
         raise RuntimeError("No integer keys found in the LMDB. Aborting.")
     print(f"Found {len(keys)} total keys")
