@@ -17,9 +17,8 @@ preprocess:
     max_bbs: 20
     max_atoms: 200
     max_cps: 20
-    prop_list: 
-    - working_capacity_vacuum_swing [mmol/g]
-    - working_capacity_temperature_swing [mmol/g]
+    prop_list:
+    - CO2_uptake (mmol/g)
   mof_matcher:
     optimizer:
       steps: 200
