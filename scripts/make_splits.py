@@ -110,16 +110,30 @@ def main() -> None:
         action="store_true",
         help="Print raw key bytes in hex (and length) for debugging",
     )
+    parser.add_argument(
+        "--fast",
+        action="store_true",
+        help="Fast mode: assume keys are contiguous numeric 0..N-1 and skip scanning",
+    )
 
     args = parser.parse_args()
 
     # Read keys
     print(f"Reading keys from: {args.lmdb_path}")
-    keys = read_integer_keys(
-        args.lmdb_path, print_count=args.print_keys, print_raw=args.print_raw, print_hex=args.print_hex
-    )
-    if not keys:
-        raise RuntimeError("No integer keys found in the LMDB. Aborting.")
+    if args.fast:
+        print("Fast mode enabled: generating contiguous indices from LMDB entry count")
+        env = read_lmdb(args.lmdb_path)
+        total = env.stat().get('entries', 0)
+        env.close()
+        if total <= 0:
+            raise RuntimeError("LMDB appears empty (0 entries). Aborting.")
+        keys = list(range(total))
+    else:
+        keys = read_integer_keys(
+            args.lmdb_path, print_count=args.print_keys, print_raw=args.print_raw, print_hex=args.print_hex
+        )
+        if not keys:
+            raise RuntimeError("No integer keys found in the LMDB. Aborting.")
     print(f"Found {len(keys)} total keys")
 
     # Shuffle deterministically
