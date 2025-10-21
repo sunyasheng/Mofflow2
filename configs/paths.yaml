@@ -4,4 +4,4 @@ paths:
   logger_dir: ${paths.root_dir}/logs
   ckpt_dir: ${paths.log_dir}/ckpt
   inference_dir: ${paths.log_dir}/inference
-  data_dir: ${paths.root_dir}/data
+  data_dir: /home/suny0a/ibex_root/Proj/MOFFlow-2/MOFFLOW2_data
