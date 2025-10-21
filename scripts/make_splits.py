@@ -8,7 +8,7 @@ from tqdm import tqdm
 from utils.lmdb import read_lmdb
 
 
-def read_integer_keys(lmdb_path: str, print_count: int = 0, print_raw: bool = False) -> List[int]:
+def read_integer_keys(lmdb_path: str, print_count: int = 0, print_raw: bool = False, print_hex: bool = False) -> List[int]:
     """
     Read all LMDB keys and return them as a list of integers.
 
@@ -26,11 +26,13 @@ def read_integer_keys(lmdb_path: str, print_count: int = 0, print_raw: bool = Fa
             iterator = tqdm(cursor, desc="Scanning LMDB keys", total=num_entries)
         printed = 0
         for key_bytes, _ in iterator:
+            # Convert potential memoryview to bytes first
+            raw = bytes(key_bytes)
             key_str = None
             parsed_int = None
             # Try to decode as ASCII string
             try:
-                key_str = key_bytes.decode("ascii")
+                key_str = raw.decode("ascii")
             except Exception:
                 key_str = None
             # Try to parse integer
@@ -43,8 +45,10 @@ def read_integer_keys(lmdb_path: str, print_count: int = 0, print_raw: bool = Fa
                 keys.append(parsed_int)
             # Debug printing of keys
             if print_count and printed < print_count:
-                if print_raw:
+                if print_raw and key_str is not None:
                     print(f"DEBUG:: key_raw='{key_str}' parsed_int={parsed_int}")
+                elif print_hex:
+                    print(f"DEBUG:: key_hex='{raw.hex()}' len={len(raw)} parsed_int={parsed_int}")
                 else:
                     print(f"DEBUG:: parsed_int={parsed_int}")
                 printed += 1
@@ -101,12 +105,19 @@ def main() -> None:
         action="store_true",
         help="Print raw decoded key strings (default: print parsed integers)",
     )
+    parser.add_argument(
+        "--print-hex",
+        action="store_true",
+        help="Print raw key bytes in hex (and length) for debugging",
+    )
 
     args = parser.parse_args()
 
     # Read keys
     print(f"Reading keys from: {args.lmdb_path}")
-    keys = read_integer_keys(args.lmdb_path, print_count=args.print_keys, print_raw=args.print_raw)
+    keys = read_integer_keys(
+        args.lmdb_path, print_count=args.print_keys, print_raw=args.print_raw, print_hex=args.print_hex
+    )
     if not keys:
         raise RuntimeError("No integer keys found in the LMDB. Aborting.")
     print(f"Found {len(keys)} total keys")
