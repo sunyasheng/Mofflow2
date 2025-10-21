@@ -40,12 +40,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Generate train/val split index files from a MetalOxo LMDB")
     parser.add_argument(
         "--lmdb-path",
-        default="/home/suny0a/ibex_root/Proj/MOFFlow-2/MOFFLOW2_data/lmdb/MetalOxo.lmdb",
+        default="/home/suny0a/chem_root/MOFFlow-2/MOFFLOW2_data/lmdb/MetalOxo.lmdb",
         help="Path to MetalOxo.lmdb",
     )
     parser.add_argument(
         "--output-dir",
-        default="/home/suny0a/ibex_root/Proj/MOFFlow-2/MOFFLOW2_data/splits",
+        default="/home/suny0a/chem_root/MOFFlow-2/MOFFLOW2_data/splits",
         help="Directory where split files will be written",
     )
     parser.add_argument(
