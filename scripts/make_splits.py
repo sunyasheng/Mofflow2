@@ -73,7 +73,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--output-dir",
-        default="/home/suny0a/chem_root/MOFFlow-2/MOFFLOW2_data/splits",
+        default="/home/suny0a/chem_root/MOFFLOW-2/MOFFLOW2_data/splits",
         help="Directory where split files will be written",
     )
     parser.add_argument(
@@ -115,6 +115,11 @@ def main() -> None:
         action="store_true",
         help="Fast mode: assume keys are contiguous numeric 0..N-1 and skip scanning",
     )
+    parser.add_argument(
+        "--sort-output",
+        action="store_true",
+        help="Sort indices ascending in output files (default: keep shuffled order)",
+    )
 
     args = parser.parse_args()
 
@@ -147,8 +152,12 @@ def main() -> None:
     if train_count >= len(keys) and len(keys) > 1:
         train_count = len(keys) - 1
 
-    train_indices = sorted(keys[:train_count])
-    val_indices = sorted(keys[train_count:])
+    if args.sort_output:
+        train_indices = sorted(keys[:train_count])
+        val_indices = sorted(keys[train_count:])
+    else:
+        train_indices = keys[:train_count]
+        val_indices = keys[train_count:]
 
     # Prepare output paths
     task_dir = os.path.join(args.output_dir, args.task)
