@@ -44,7 +44,7 @@ def fix_spacegroup_analyzer():
             content = f.read()
         
         # 检查是否已经修复过
-        if "def get_space_group_symbol(self):" in content and "self._space_group_data['international']" in content:
+        if "self._space_group_data['international']" in content:
             print("文件已经修复过，跳过")
             return True
         
@@ -73,17 +73,13 @@ def fix_spacegroup_analyzer():
             content = content.replace(old_method, new_method)
             print("已修复 get_space_group_symbol 方法")
         else:
-            # 尝试更简单的替换
-            old_line = "return self._space_group_data.international"
-            new_line = """# 兼容性修复：处理字典和对象两种格式
-        if isinstance(self._space_group_data, dict):
-            return self._space_group_data['international']
-        else:
-            return self._space_group_data.international"""
+            # 尝试更简单的替换 - 替换所有使用 _space_group_data.international 的地方
+            old_line = "self._space_group_data.international"
+            new_line = """self._space_group_data['international'] if isinstance(self._space_group_data, dict) else self._space_group_data.international"""
             
             if old_line in content:
                 content = content.replace(old_line, new_line)
-                print("已修复 get_space_group_symbol 方法（简化版本）")
+                print("已修复所有使用 _space_group_data.international 的地方")
             else:
                 print("未找到需要修复的方法，可能版本不同")
                 return False
