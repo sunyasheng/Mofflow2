@@ -23,14 +23,17 @@ def fix_spacegroup_analyzer():
     # 找到 pymatgen 安装路径
     try:
         import pymatgen
-        pymatgen_path = Path(pymatgen.__file__).parent
-        analyzer_file = pymatgen_path / "symmetry" / "analyzer.py"
+        import pymatgen.symmetry.analyzer
+        
+        # 获取 analyzer 模块的文件路径
+        analyzer_module = pymatgen.symmetry.analyzer
+        analyzer_file = Path(analyzer_module.__file__)
         
         if not analyzer_file.exists():
             print(f"找不到文件: {analyzer_file}")
             return False
             
-        print(f"找到 pymatgen 安装路径: {pymatgen_path}")
+        print(f"找到 pymatgen 安装路径: {analyzer_file.parent}")
         print(f"修复文件: {analyzer_file}")
         
         # 备份原始文件
