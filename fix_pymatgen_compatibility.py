@@ -49,15 +49,19 @@ def fix_spacegroup_analyzer():
             return True
         
         # 修复 get_space_group_symbol 方法
-        old_method = """    def get_space_group_symbol(self):
-        \"\"\"
-        Returns the international symbol of the space group.
+        old_method = """    def get_space_group_symbol(self) -> str:
+        \"\"\"Get the spacegroup symbol (e.g., Pnma) for structure.
+
+        Returns:
+            str: Spacegroup symbol for structure.
         \"\"\"
         return self._space_group_data.international"""
         
-        new_method = """    def get_space_group_symbol(self):
-        \"\"\"
-        Returns the international symbol of the space group.
+        new_method = """    def get_space_group_symbol(self) -> str:
+        \"\"\"Get the spacegroup symbol (e.g., Pnma) for structure.
+
+        Returns:
+            str: Spacegroup symbol for structure.
         \"\"\"
         # 兼容性修复：处理字典和对象两种格式
         if isinstance(self._space_group_data, dict):
@@ -69,8 +73,20 @@ def fix_spacegroup_analyzer():
             content = content.replace(old_method, new_method)
             print("已修复 get_space_group_symbol 方法")
         else:
-            print("未找到需要修复的方法，可能版本不同")
-            return False
+            # 尝试更简单的替换
+            old_line = "return self._space_group_data.international"
+            new_line = """# 兼容性修复：处理字典和对象两种格式
+        if isinstance(self._space_group_data, dict):
+            return self._space_group_data['international']
+        else:
+            return self._space_group_data.international"""
+            
+            if old_line in content:
+                content = content.replace(old_line, new_line)
+                print("已修复 get_space_group_symbol 方法（简化版本）")
+            else:
+                print("未找到需要修复的方法，可能版本不同")
+                return False
         
         # 写回文件
         with open(analyzer_file, 'w', encoding='utf-8') as f:
