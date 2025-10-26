@@ -23,6 +23,7 @@ class ExtractSequence:
         # Task specific settings
         self.task = 'gen'
         self.prop_name = process_cfg.mof_sequence.prop_name
+        self.prop_index = 0
 
         # Directories
         self.lmdb_dir = process_cfg.lmdb_dir
@@ -73,9 +74,12 @@ class ExtractSequence:
             organic_str = ".".join(organic_smiles)
             mof_sequence = f"<BOS> {metal_str} <SEP> {organic_str} <EOS>"
 
-            print("feat keys: ", feats.keys(), "prop name: ", self.prop_name)
-            # Extract property
-            prop_value = feats['prop_dict'].get(self.prop_name, None)
+            # print("feat keys: ", feats.keys(), "prop name: ", self.prop_name)
+            # Extract property assuming 'props' is a Torch tensor (observed format)
+            import torch
+            props = feats['props']
+            flat = props.detach().cpu().reshape(-1)
+            prop_value = float(flat[self.prop_index].item())
 
             return idx, (mof_sequence, prop_value)
             
