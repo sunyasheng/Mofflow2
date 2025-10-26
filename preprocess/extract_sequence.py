@@ -91,7 +91,10 @@ class ExtractSequence:
 
         # Read data
         data_dict = {}
-        src_env = read_lmdb(f"{self.lmdb_dir}/{self.task}/MetalOxo_final_{split}.lmdb")
+        lmdb_path = f"{self.lmdb_dir}/{self.task}/MetalOxo_final_{split}.lmdb"
+        print(f"INFO:: Reading LMDB from: {lmdb_path}")
+        import pdb; pdb.set_trace()
+        src_env = read_lmdb(lmdb_path)
         with src_env.begin() as src_txn:
             num_entries = src_env.stat()['entries']
             cursor = src_txn.cursor()
