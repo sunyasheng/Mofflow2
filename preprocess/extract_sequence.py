@@ -73,7 +73,7 @@ class ExtractSequence:
             organic_str = ".".join(organic_smiles)
             mof_sequence = f"<BOS> {metal_str} <SEP> {organic_str} <EOS>"
 
-            import pdb; pdb.set_trace()
+            print("feat keys: ", feats.keys())
             # Extract property
             prop_value = feats['prop_dict'].get(self.prop_name, None)
 
