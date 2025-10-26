@@ -31,7 +31,7 @@ preprocess:
   mof_checker:
     use_matched_coords: True
   mof_sequence:
-    prop_name: working_capacity_vacuum_swing [mmol/g]
+    prop_name: CO2_uptake (mmol/g)
 
 data:
   train_sample_limit: null
