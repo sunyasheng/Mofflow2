@@ -13,6 +13,7 @@ from joblib import Parallel, delayed
 from omegaconf import DictConfig
 from utils import molecule as mu
 from utils.environment import PROJECT_ROOT
+from utils.lmdb import read_lmdb
 
 
 class ExtractSequence:
