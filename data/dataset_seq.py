@@ -25,7 +25,8 @@ class MOFSequenceDataset(Dataset):
         tokenizer = SmilesTokenizer()
         if not os.path.exists(self.vocab_path):
             print(f"INFO:: Building vocab to {self.vocab_path}...")
-            tokenizer.build_vocab(self._load_dataset(split='train'))
+            tokenizer.build_vocab([entry['seq'] for entry in self._load_dataset(split='train')])
+            # tokenizer.build_vocab(self._load_dataset(split='train'))
             tokenizer.save_vocab(self.vocab_path)
         else:
             print(f"INFO:: Loading vocab from {self.vocab_path}...")

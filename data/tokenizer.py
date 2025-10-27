@@ -12,7 +12,6 @@ class SmilesTokenizer:
         self._finalized = False
 
     def tokenize(self, sequence):
-        import pdb; pdb.set_trace()
         tokens = []
         for part in sequence.strip().split():
             if part in self.special_tokens:
