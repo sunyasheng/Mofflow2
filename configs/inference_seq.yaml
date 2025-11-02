@@ -14,7 +14,7 @@ inference:
   temperature: 1.0
 
   # Conditional generation
-  target_property: 2.0 # Set to float value for conditional generation (e.g., 2.0, 4.0, etc.)
+  target_property: 1.0 # Set to float value for conditional generation (e.g., 2.0, 4.0, etc.)
   
 hydra:
   run:
