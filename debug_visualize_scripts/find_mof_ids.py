@@ -53,51 +53,38 @@ with env.begin() as txn:
             print(f"Successfully retrieved data for ID: {json_id}")
             print(f"Data type: {type(data)}")
             
-            # Try to find MOF ID in various ways
+            # Try to find MOF ID - it should be in m_id attribute
             mof_id = None
             mof_id_source = None
             
-            # Method 1: Check if prop_dict has mof_id
-            if hasattr(data, 'prop_dict') and isinstance(data.prop_dict, dict):
-                print(f"\nprop_dict keys: {list(data.prop_dict.keys())[:10]}")
-                if 'mof_id' in data.prop_dict:
-                    mof_id = data.prop_dict['mof_id']
-                    mof_id_source = 'prop_dict[mof_id]'
-                elif 'id' in data.prop_dict:
-                    mof_id = data.prop_dict['id']
-                    mof_id_source = 'prop_dict[id]'
-                elif 'uid' in data.prop_dict:
-                    mof_id = data.prop_dict['uid']
-                    mof_id_source = 'prop_dict[uid]'
+            # Method 1: Check if data has m_id as attribute (primary method)
+            if hasattr(data, 'm_id'):
+                mof_id = data.m_id
+                mof_id_source = 'data.m_id'
             
-            # Method 2: Check if data has mof_id as attribute
-            if mof_id is None and hasattr(data, 'mof_id'):
-                mof_id = data.mof_id
-                mof_id_source = 'data.mof_id'
-            
-            # Method 3: Check if data has id as attribute
-            if mof_id is None and hasattr(data, 'id'):
-                mof_id = data.id
-                mof_id_source = 'data.id'
-            
-            # Method 4: Check if data has uid as attribute
-            if mof_id is None and hasattr(data, 'uid'):
-                mof_id = data.uid
-                mof_id_source = 'data.uid'
-            
-            # Method 5: If it's a dict, check dict keys
-            if mof_id is None and isinstance(data, dict):
-                if 'mof_id' in data:
+            # Method 2: If it's a dict, check dict keys
+            elif isinstance(data, dict):
+                if 'm_id' in data:
+                    mof_id = data['m_id']
+                    mof_id_source = 'dict[m_id]'
+                elif 'mof_id' in data:
                     mof_id = data['mof_id']
                     mof_id_source = 'dict[mof_id]'
                 elif 'id' in data:
                     mof_id = data['id']
                     mof_id_source = 'dict[id]'
-                elif 'uid' in data:
-                    mof_id = data['uid']
-                    mof_id_source = 'dict[uid]'
             
-            # Method 6: Use JSON ID as MOF ID if nothing else found
+            # Method 3: Check if prop_dict has m_id
+            if mof_id is None and hasattr(data, 'prop_dict') and isinstance(data.prop_dict, dict):
+                print(f"\nprop_dict keys: {list(data.prop_dict.keys())[:10]}")
+                if 'm_id' in data.prop_dict:
+                    mof_id = data.prop_dict['m_id']
+                    mof_id_source = 'prop_dict[m_id]'
+                elif 'mof_id' in data.prop_dict:
+                    mof_id = data.prop_dict['mof_id']
+                    mof_id_source = 'prop_dict[mof_id]'
+            
+            # Method 4: Use JSON ID as MOF ID if nothing else found
             if mof_id is None:
                 mof_id = json_id
                 mof_id_source = 'json_id (fallback)'
