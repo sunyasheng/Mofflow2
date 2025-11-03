@@ -125,8 +125,6 @@ print(f"{'-'*120}")
 for r in results:
     mof_id_str = str(r['mof_id']) if r['mof_id'] is not None else 'N/A'
     seq_str = str(r['seq'])
-    # Truncate seq if too long for display (keep first 60 chars)
-    if len(seq_str) > 60:
-        seq_str = seq_str[:57] + "..."
+    # Display full SMILES sequence without truncation
     print(f"{r['json_id']:<15} {mof_id_str:<50} {seq_str}")
 
