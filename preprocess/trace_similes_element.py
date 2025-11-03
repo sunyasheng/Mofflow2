@@ -106,23 +106,32 @@ with env.begin() as txn:
         print(f"prop_dict: {data.prop_dict}")
     if hasattr(data, 'y'):
         y = data.y
-        print(f"y (properties tensor): shape={y.shape}, dtype={y.dtype}")
-        if y.numel() <= 5:
-            print(f"  Values: {y}")
+        if y is not None:
+            print(f"y (properties tensor): shape={y.shape}, dtype={y.dtype}")
+            if y.numel() <= 5:
+                print(f"  Values: {y}")
+            else:
+                print(f"  Min: {y.min().item():.4f}, Max: {y.max().item():.4f}, Mean: {y.float().mean().item():.4f}")
         else:
-            print(f"  Min: {y.min().item():.4f}, Max: {y.max().item():.4f}, Mean: {y.float().mean().item():.4f}")
+            print(f"y (properties tensor): None")
     if hasattr(data, 'lengths'):
         lengths = data.lengths
-        if isinstance(lengths, torch.Tensor):
-            print(f"lengths: shape={lengths.shape}, values={lengths.tolist() if lengths.numel() <= 10 else f'Min={lengths.min():.4f}, Max={lengths.max():.4f}'}")
+        if lengths is not None:
+            if isinstance(lengths, torch.Tensor):
+                print(f"lengths: shape={lengths.shape}, values={lengths.tolist() if lengths.numel() <= 10 else f'Min={lengths.min():.4f}, Max={lengths.max():.4f}'}")
+            else:
+                print(f"lengths: {lengths}")
         else:
-            print(f"lengths: {lengths}")
+            print(f"lengths: None")
     if hasattr(data, 'angles'):
         angles = data.angles
-        if isinstance(angles, torch.Tensor):
-            print(f"angles: shape={angles.shape}, values={angles.tolist() if angles.numel() <= 10 else f'Min={angles.min():.4f}, Max={angles.max():.4f}'}")
+        if angles is not None:
+            if isinstance(angles, torch.Tensor):
+                print(f"angles: shape={angles.shape}, values={angles.tolist() if angles.numel() <= 10 else f'Min={angles.min():.4f}, Max={angles.max():.4f}'}")
+            else:
+                print(f"angles: {angles}")
         else:
-            print(f"angles: {angles}")
+            print(f"angles: None")
     if hasattr(data, 'bbs'):
         print(f"bbs: {len(data.bbs)} building blocks")
         for i, bb in enumerate(data.bbs):
