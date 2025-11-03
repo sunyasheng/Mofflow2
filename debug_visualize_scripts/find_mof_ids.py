@@ -30,6 +30,9 @@ json_ids = list(json_data.keys())[:args.num_ids]
 print(f"\nFound {len(json_ids)} IDs in JSON (processing first {args.num_ids}):")
 print(json_ids)
 
+# Store seq for each ID
+json_seqs = {json_id: json_data[json_id].get('seq', 'N/A') for json_id in json_ids}
+
 # Open LMDB
 print(f"\nOpening LMDB: {args.lmdb_path}")
 env = read_lmdb(args.lmdb_path)
@@ -55,47 +58,42 @@ with env.begin() as txn:
             
             # Try to find MOF ID - it should be in m_id attribute
             mof_id = None
-            mof_id_source = None
             
             # Method 1: Check if data has m_id as attribute (primary method)
             if hasattr(data, 'm_id'):
                 mof_id = data.m_id
-                mof_id_source = 'data.m_id'
             
             # Method 2: If it's a dict, check dict keys
             elif isinstance(data, dict):
                 if 'm_id' in data:
                     mof_id = data['m_id']
-                    mof_id_source = 'dict[m_id]'
                 elif 'mof_id' in data:
                     mof_id = data['mof_id']
-                    mof_id_source = 'dict[mof_id]'
                 elif 'id' in data:
                     mof_id = data['id']
-                    mof_id_source = 'dict[id]'
             
             # Method 3: Check if prop_dict has m_id
             if mof_id is None and hasattr(data, 'prop_dict') and isinstance(data.prop_dict, dict):
                 print(f"\nprop_dict keys: {list(data.prop_dict.keys())[:10]}")
                 if 'm_id' in data.prop_dict:
                     mof_id = data.prop_dict['m_id']
-                    mof_id_source = 'prop_dict[m_id]'
                 elif 'mof_id' in data.prop_dict:
                     mof_id = data.prop_dict['mof_id']
-                    mof_id_source = 'prop_dict[mof_id]'
             
             # Method 4: Use JSON ID as MOF ID if nothing else found
             if mof_id is None:
                 mof_id = json_id
-                mof_id_source = 'json_id (fallback)'
             
-            print(f"\nMOF ID: {mof_id} (from: {mof_id_source})")
+            print(f"\nMOF ID: {mof_id}")
+            
+            # Get seq from JSON data
+            seq = json_seqs.get(json_id, 'N/A')
             
             # Store result
             results.append({
                 'json_id': json_id,
                 'mof_id': mof_id,
-                'mof_id_source': mof_id_source,
+                'seq': seq,
                 'found': True
             })
             
@@ -107,10 +105,11 @@ with env.begin() as txn:
             
         except Exception as e:
             print(f"Error processing ID {json_id}: {e}")
+            seq = json_seqs.get(json_id, 'N/A')
             results.append({
                 'json_id': json_id,
                 'mof_id': None,
-                'mof_id_source': None,
+                'seq': seq,
                 'found': False,
                 'error': str(e)
             })
@@ -118,14 +117,16 @@ with env.begin() as txn:
 env.close()
 
 # Print summary
-print(f"\n{'='*80}")
+print(f"\n{'='*120}")
 print(f"Summary:")
-print(f"{'='*80}")
-print(f"\n{'JSON ID':<15} {'MOF ID':<20} {'Source':<25} {'Status'}")
-print(f"{'-'*80}")
+print(f"{'='*120}")
+print(f"\n{'JSON ID':<15} {'MOF ID':<50} {'Seq (SMILES)'}")
+print(f"{'-'*120}")
 for r in results:
-    status = '✓ Found' if r['found'] else '✗ Error'
     mof_id_str = str(r['mof_id']) if r['mof_id'] is not None else 'N/A'
-    source_str = r['mof_id_source'] if r['mof_id_source'] else 'N/A'
-    print(f"{r['json_id']:<15} {mof_id_str:<20} {source_str:<25} {status}")
+    seq_str = str(r['seq'])
+    # Truncate seq if too long for display (keep first 60 chars)
+    if len(seq_str) > 60:
+        seq_str = seq_str[:57] + "..."
+    print(f"{r['json_id']:<15} {mof_id_str:<50} {seq_str}")
 
