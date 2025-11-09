@@ -74,3 +74,5 @@ if __name__ == "__main__":
     parser.add_argument("input_smiles", type=str)
     args = parser.parse_args()
     print(charge_fix(args.input_smiles))
+
+# python charge_balance.py "<BOS> [V+].[V+].[V+].[V+] <SEP> [O-2].[O-2].[O-2].[O-2].O=C([O-])c1ccc(C(=O)[O-])cc1.O=C([O-])c1ccc(C(=O)[O-])cc1.O=C([O-])c1cc2ccc3cc(C(=O)[O-])cc4ccc(c1)c2c34.O=C([O-])c1cc2ccc3c(OCc4ccccc4)c(C(=O)[O-])cc4cc(OCc5ccccc5)c(c1)c2c43 <EOS>"
