@@ -62,7 +62,6 @@ def process_one(idx, value):
 
         # Chemical validity check (RDKit)
         bb_mols = fu.get_bb_mols_from_feats(feats)
-        import pdb; pdb.set_trace()
 
         # Extract rotatable bonds
         rotable_bond_data = tu.get_rotable_bond_data(bb_mols, feats['bb_num_vec'])
