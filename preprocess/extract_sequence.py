@@ -14,7 +14,7 @@ from omegaconf import DictConfig
 from utils import molecule as mu
 from utils.environment import PROJECT_ROOT
 from utils.lmdb import read_lmdb
-
+from utils.similes_charge_balance import charge_fix
 
 class ExtractSequence:
     def __init__(self, cfg: DictConfig):
@@ -72,8 +72,11 @@ class ExtractSequence:
             # Construct string sequence
             metal_str = ".".join(metal_smiles)
             organic_str = ".".join(organic_smiles)
-            mof_sequence = f"<BOS> {metal_str} <SEP> {organic_str} <EOS>"
+            mof_sequence_before = f"<BOS> {metal_str} <SEP> {organic_str} <EOS>"
 
+            mof_sequence = charge_fix(mof_sequence_before)
+            print("mof_sequence_before: ", mof_sequence_before)
+            print("mof_sequence: ", mof_sequence)
             # print("feat keys: ", feats.keys(), "prop name: ", self.prop_name)
             # Extract property assuming 'props' is a Torch tensor (observed format)
             import torch
@@ -134,7 +137,7 @@ class ExtractSequence:
 def main(cfg: DictConfig):
     extractor = ExtractSequence(cfg=cfg)
     extractor.process(split="val")
-    extractor.process(split="train")
+    # extractor.process(split="train")
 
 if __name__ == "__main__":
     main()
