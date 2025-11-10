@@ -75,8 +75,8 @@ class ExtractSequence:
             mof_sequence_before = f"<BOS> {metal_str} <SEP> {organic_str} <EOS>"
 
             mof_sequence = charge_fix(mof_sequence_before)
-            print("mof_sequence_before: ", mof_sequence_before)
-            print("mof_sequence: ", mof_sequence)
+            # print("mof_sequence_before: ", mof_sequence_before)
+            # print("mof_sequence: ", mof_sequence)
             # print("feat keys: ", feats.keys(), "prop name: ", self.prop_name)
             # Extract property assuming 'props' is a Torch tensor (observed format)
             import torch
