@@ -51,6 +51,16 @@ def charge_fix(smiles: str) -> str:
     metals, linkers = split_by_separators(smiles)
     metals_mol = Chem.MolFromSmiles(metals)
     linkers_mol = Chem.MolFromSmiles(linkers)
+    
+    print(metals_mol)
+    print("--------------------------------")
+    print(linkers_mol)
+    print("--------------------------------")
+    print(metals)
+    print("--------------------------------")
+    print(linkers)
+    print("--------------------------------")
+
     metals_total_charge = Chem.GetFormalCharge(metals_mol)
     linkers_total_charge = Chem.GetFormalCharge(linkers_mol)
     if metals_total_charge + linkers_total_charge == 0:
