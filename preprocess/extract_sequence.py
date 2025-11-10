@@ -137,7 +137,7 @@ class ExtractSequence:
 def main(cfg: DictConfig):
     extractor = ExtractSequence(cfg=cfg)
     extractor.process(split="val")
-    # extractor.process(split="train")
+    extractor.process(split="train")
 
 if __name__ == "__main__":
     main()
