@@ -1,5 +1,5 @@
 
-
+### their official released
 PYTHONPATH=/ibex/user/suny0a/Proj/MOFFlow-2 python experiments/predict_seq.py \
     inference.ckpt_path=/ibex/user/suny0a/Proj/MOFFlow-2/logs/gen/seq_module_unconditional/epoch_20-step_10728-loss_0.1081.ckpt \
     inference.total_samples=1000
