@@ -55,7 +55,7 @@ if [ $? -eq 0 ]; then
     
     PYTHONPATH="$PROJECT_ROOT" python io/pt_to_cif.py \
         --save_pt "$PREDICTION_PATH" \
-        --num_samples 3 \
+        --num_samples 10 \
         --num_cpus 4
     
     # 检查第二步是否成功
