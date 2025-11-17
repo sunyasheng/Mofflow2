@@ -9,11 +9,11 @@ echo ""
 PROJECT_ROOT="/ibex/user/suny0a/Proj/MOFFlow-2"
 
 # 检查点选择 (取消注释想要使用的检查点)
-CKPT_PATH="$PROJECT_ROOT/logs/gen/sp_module/epoch_200-step_414498-loss_0.8644.ckpt"  # 预训练模型
-# CKPT_PATH="$PROJECT_ROOT/logs/mof-csp/seq/ckpt/epoch_1-step_28038-loss_2.7838.ckpt"  # 你的训练模型
+CKPT_PATH="$PROJECT_ROOT/logs/gen/sp_module/epoch_200-step_414498-loss_0.8644.ckpt"  # 官方训练模型
 
 METAL_LIB_PATH="$PROJECT_ROOT/data/metals/metal_lib_train.pkl"
-SEQ_PATH="$PROJECT_ROOT/logs/mof-seq/seq_1step/inference/temp_1.0_unconditional/preds_samples-250.json"
+# SEQ_PATH="$PROJECT_ROOT/logs/mof-seq/seq_1step/inference/temp_1.0_unconditional/preds_samples-250.json"
+SEQ_PATH="$PROJECT_ROOT/logs/gen/inference/temp_1.0_unconditional/preds_samples-1000.json" # 官方一阶段训练模型生成的序列
 
 # 删除旧的processed_data.pkl文件，强制重新处理250个序列
 PROCESSED_DATA_PATH="$PROJECT_ROOT/logs/mof-seq/seq_1step/inference/temp_1.0_unconditional/processed_data.pkl"
@@ -41,7 +41,7 @@ PYTHONPATH="$PROJECT_ROOT" python experiments/predict.py \
     inference.ckpt_path="$CKPT_PATH" \
     +inference.gen.metal_lib_path="$METAL_LIB_PATH" \
     +inference.gen.mof_seqs_path="$SEQ_PATH" \
-    inference.num_samples=3 \
+    inference.num_samples=10 \
     inference.sampler.num_timesteps=50
 
 # 检查第一步是否成功
