@@ -4,5 +4,6 @@ paths:
   logger_dir: ${paths.root_dir}/logs
   ckpt_dir: ${paths.log_dir}/ckpt
   inference_dir: ${paths.log_dir}/inference
-  data_dir: /ibex/project/c2318/material_discovery/MOFFLOW2_data
+  data_dir: ${oc.env:DATA_DIR}
+  # data_dir: /ibex/project/c2318/material_discovery/MOFFLOW2_data
   # data_dir: /home/suny0a/chem_root/MOFFlow-2/MOFFLOW2_data
