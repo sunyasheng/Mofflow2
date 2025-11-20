@@ -87,3 +87,9 @@ if __name__ == "__main__":
     main()
 
 # python 1_get_abnormal_seqID.py --json-path /ibex/project/c2318/material_discovery/MOFFLOW2_data/seqs/mof_sequence_train.json --output mof_abnormal_id_train.txt
+# Found 968 sequences with abnormal oxidation states
+# Successfully wrote 968 IDs to mof_abnormal_id_train.txt
+
+# python 1_get_abnormal_seqID.py --json-path /ibex/project/c2318/material_discovery/MOFFLOW2_data/seqs/mof_sequence_val.json --output mof_abnormal_id_val.txt
+# Found 112 sequences with abnormal oxidation states
+# Successfully wrote 112 IDs to mof_abnormal_id_val.txt
