@@ -1,16 +1,43 @@
 #!/usr/bin/env python
 """
-Read a JSON file and output all the IDs (keys) from it.
-Usage: python 1_get_abnormal_seqID.py [--json-path JSON_PATH]
+Find sequence IDs that contain abnormal oxidation states in SMILES sequences.
+Usage: python 1_get_abnormal_seqID.py [--json-path JSON_PATH] [--output OUTPUT_FILE]
 """
 import json
 import argparse
 import sys
 import os
+import re
+
+
+# Define abnormal oxidation states: (element, charge)
+ABNORMAL_CHARGES = [
+    ('Cu', '+3'), ('Cu', '+4'), ('Cu', '+5'), ('Cu', '+6'), ('Cu', '+7'), ('Cu', '+8'),
+    ('Zn', '+3'), ('Zn', '+4'), ('Zn', '+5'), ('Zn', '+6'), ('Zn', '+7'), ('Zn', '+8'),
+    ('Pd', '+3'),
+    ('V', '+6'),
+    ('Ce', '+6'),
+    ('Er', '+6'),
+    ('Al', '+9'), ('Al', '+2'), ('Al', '+15'),
+]
+
+
+def contains_abnormal_charge(seq: str) -> bool:
+    """
+    Check if a sequence contains any abnormal oxidation states.
+    """
+    for element, charge in ABNORMAL_CHARGES:
+        # Match patterns like [Cu+3], [Zn+4], etc.
+        pattern = rf'\[{re.escape(element)}{re.escape(charge)}\]'
+        if re.search(pattern, seq):
+            return True
+    return False
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Read JSON file and output IDs")
+    parser = argparse.ArgumentParser(
+        description="Find sequence IDs containing abnormal oxidation states"
+    )
     parser.add_argument(
         "--json-path",
         type=str,
@@ -33,15 +60,20 @@ def main() -> None:
         with open(args.json_path, 'r') as f:
             data = json.load(f)
         
-        # Extract all IDs (keys) from the JSON
-        ids = list(data.keys())
+        # Find IDs with abnormal charges
+        abnormal_ids = []
+        for seq_id, entry in data.items():
+            seq = entry.get('seq', '')
+            if contains_abnormal_charge(seq):
+                abnormal_ids.append(seq_id)
         
-        # Write each ID to the output file
+        # Write abnormal IDs to the output file
         with open(args.output, 'w') as out_f:
-            for seq_id in ids:
+            for seq_id in abnormal_ids:
                 out_f.write(f"{seq_id}\n")
         
-        print(f"Successfully wrote {len(ids)} IDs to {args.output}")
+        print(f"Found {len(abnormal_ids)} sequences with abnormal oxidation states")
+        print(f"Successfully wrote {len(abnormal_ids)} IDs to {args.output}")
             
     except json.JSONDecodeError as e:
         print(f"Error: Failed to parse JSON file: {e}", file=sys.stderr)
