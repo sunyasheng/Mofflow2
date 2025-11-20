@@ -130,3 +130,5 @@ def main() -> None:
 if __name__ == "__main__":
     main()
 
+# python 2_seqID2mID.py --input-file mof_abnormal_id_val.txt --output mof_abnormal_m_id_val.txt --lmdb-path /ibex/project/c2318/material_discovery/MOFFLOW2_data/lmdb/MetalOxo.lmdb
+# python 2_seqID2mID.py --input-file mof_abnormal_id_train.txt --output mof_abnormal_m_id_train.txt --lmdb-path /ibex/project/c2318/material_discovery/MOFFLOW2_data/lmdb/MetalOxo.lmdb
