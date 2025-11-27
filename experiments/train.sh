@@ -8,7 +8,7 @@
 PYTHONPATH=/ibex/user/suny0a/Proj/MOFFlow-2 python experiments/train.py \
   experiment.task=gen \
   experiment.name=csp_$(date +%Y%m%d_%H%M%S) \
-  experiment.num_devices=4 \
+  experiment.num_devices=2 \
   2>&1 | tee output_$(date +%Y%m%d_%H%M%S).log
 
 # 使用 8 个 GPU 的示例
