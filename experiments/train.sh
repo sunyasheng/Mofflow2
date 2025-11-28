@@ -2,14 +2,22 @@
 # PYTHONPATH=/ibex/user/suny0a/Proj/MOFFlow-2 python experiments/train.py experiment.task=csp experiment.name=csp experiment.warm_start=/ibex/user/suny0a/Proj/MOFFlow-2/logs/mof-csp/csp/ckpt/epoch_4-step_70093-loss_2.2509.ckpt > output.log 2>&1
 # 训练的时候只是数据加载不一样 gen，csp所在的文件路径不一样
 
-# ========== 多 GPU 使用方法 ==========
-# 使用多个 GPU：在命令行中添加 experiment.num_devices=N (N 为 GPU 数量)
-# 例如：使用 4 个 GPU
+
 PYTHONPATH=/ibex/user/suny0a/Proj/MOFFlow-2 python experiments/train.py \
   experiment.task=gen \
   experiment.name=csp_$(date +%Y%m%d_%H%M%S) \
-  experiment.num_devices=2 \
+  experiment.warm_start=/ibex/user/suny0a/Proj/MOFFlow-2/logs/mof-gen/csp_20251120_125600/ckpt/epoch_14-step_139364-loss_3.9131.ckpt \
   2>&1 | tee output_$(date +%Y%m%d_%H%M%S).log
+
+
+# ========== 多 GPU 使用方法 ==========
+# 使用多个 GPU：在命令行中添加 experiment.num_devices=N (N 为 GPU 数量)
+# 例如：使用 4 个 GPU
+# PYTHONPATH=/ibex/user/suny0a/Proj/MOFFlow-2 python experiments/train.py \
+#   experiment.task=gen \
+#   experiment.name=csp_$(date +%Y%m%d_%H%M%S) \
+#   experiment.num_devices=2 \
+#   2>&1 | tee output_$(date +%Y%m%d_%H%M%S).log
 
 # 使用 8 个 GPU 的示例
 # PYTHONPATH=/ibex/user/suny0a/Proj/MOFFlow-2 python experiments/train.py \
