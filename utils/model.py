@@ -76,8 +76,57 @@ def t_stratified_loss(batch_t, batch_loss, num_bins=4, loss_name=None):
     """Stratify loss by binning t."""
     batch_t = du.to_numpy(batch_t)
     batch_loss = du.to_numpy(batch_loss)
+    
+    # Check if shapes match
     flat_losses = batch_loss.flatten()
     flat_t = batch_t.flatten()
+    
+    if len(flat_t) != len(flat_losses):
+        # Print debug information
+        import warnings
+        warnings.warn(
+            f"Shape mismatch in t_stratified_loss: "
+            f"batch_t shape={batch_t.shape}, size={batch_t.size}; "
+            f"batch_loss shape={batch_loss.shape}, size={batch_loss.size}. "
+            f"Attempting to fix...",
+            UserWarning
+        )
+        print(f"ERROR: Shape mismatch detected in t_stratified_loss!")
+        print(f"  batch_t shape: {batch_t.shape}, size: {batch_t.size}, values: {batch_t}")
+        print(f"  batch_loss shape: {batch_loss.shape}, size: {batch_loss.size}, values: {batch_loss}")
+        
+        # Try to fix: if batch_t has more elements, try to reduce to batch_loss length
+        if len(flat_t) > len(flat_losses):
+            # If batch_t is [num_bbs] or [num_atoms], need to reduce to [batch_size]
+            # Try to reduce by deduplication or averaging
+            unique_t, unique_indices = np.unique(flat_t, return_index=True)
+            if len(unique_t) == len(flat_losses):
+                # Perfect match - use unique values
+                flat_t = unique_t
+            elif len(flat_t) % len(flat_losses) == 0:
+                # Can reshape - take mean
+                num_per_graph = len(flat_t) // len(flat_losses)
+                flat_t = batch_t.reshape(len(flat_losses), num_per_graph).mean(axis=1)
+            else:
+                # Take first len(flat_losses) unique values
+                flat_t = np.unique(flat_t)[:len(flat_losses)]
+                if len(flat_t) < len(flat_losses):
+                    # If still not enough, repeat the last value
+                    flat_t = np.pad(flat_t, (0, len(flat_losses) - len(flat_t)), mode='edge')
+        elif len(flat_t) == 1:
+            # Single t value - repeat to batch_size
+            flat_t = np.repeat(flat_t, len(flat_losses))
+        else:
+            # Cannot auto-fix, raise error
+            raise ValueError(
+                f"Cannot automatically fix shape mismatch: "
+                f"batch_t shape {batch_t.shape} -> {len(flat_t)} elements, "
+                f"batch_loss shape {batch_loss.shape} -> {len(flat_losses)} elements. "
+                f"Please check the data batching process."
+            )
+        
+        print(f"  Fixed: flat_t length={len(flat_t)}, flat_losses length={len(flat_losses)}")
+    
     bin_edges = np.linspace(0.0, 1.0 + 1e-3, num_bins+1)
     bin_idx = np.sum(bin_edges[:, None] <= flat_t[None, :], axis=0) - 1
     t_binned_loss = np.bincount(bin_idx, weights=flat_losses)
