@@ -2,6 +2,9 @@
 # PYTHONPATH=/ibex/user/suny0a/Proj/MOFFlow-2 python experiments/train.py experiment.task=csp experiment.name=csp experiment.warm_start=/ibex/user/suny0a/Proj/MOFFlow-2/logs/mof-csp/csp/ckpt/epoch_4-step_70093-loss_2.2509.ckpt > output.log 2>&1
 # 训练的时候只是数据加载不一样 gen，csp所在的文件路径不一样
 
+echo "GPUs visible: $CUDA_VISIBLE_DEVICES"
+nvidia-smi
+
 
 PYTHONPATH=/ibex/user/suny0a/Proj/MOFFlow-2 python experiments/train.py \
   experiment.task=gen \
