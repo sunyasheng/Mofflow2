@@ -6,6 +6,7 @@
 PYTHONPATH=/ibex/user/suny0a/Proj/MOFFlow-2 python experiments/train.py \
   experiment.task=gen \
   experiment.name=csp_$(date +%Y%m%d_%H%M%S) \
+  experiment.num_devices=2 \
   experiment.warm_start=/ibex/user/suny0a/Proj/MOFFlow-2/logs/mof-gen/csp_20251129_095557/ckpt/epoch_69-step_650404-loss_1.3757.ckpt \
   2>&1 | tee output_$(date +%Y%m%d_%H%M%S).log
 
