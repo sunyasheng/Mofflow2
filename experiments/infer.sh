@@ -9,7 +9,7 @@ echo ""
 PROJECT_ROOT="/ibex/user/suny0a/Proj/MOFFlow-2"
 
 # 检查点选择 (取消注释想要使用的检查点)
-CKPT_PATH="$PROJECT_ROOT/logs/gen/sp_module/epoch_200-step_414498-loss_0.8644.ckpt"  # 官方训练模型
+CKPT_PATH="$PROJECT_ROOT/logs/mof-gen/csp_20251129_095557/ckpt/epoch_65-step_613243-loss_1.3635.ckpt"  # 自己训练的模型
 
 METAL_LIB_PATH="$PROJECT_ROOT/data/metals/metal_lib_train.pkl"
 # SEQ_PATH="$PROJECT_ROOT/logs/mof-seq/seq_1step/inference/temp_1.0_unconditional/preds_samples-250.json"
@@ -41,7 +41,7 @@ PYTHONPATH="$PROJECT_ROOT" python experiments/predict.py \
     inference.ckpt_path="$CKPT_PATH" \
     +inference.gen.metal_lib_path="$METAL_LIB_PATH" \
     +inference.gen.mof_seqs_path="$SEQ_PATH" \
-    inference.num_samples=10 \
+    inference.num_samples=1 \
     inference.sampler.num_timesteps=50
 
 # 检查第一步是否成功
@@ -55,7 +55,7 @@ if [ $? -eq 0 ]; then
     
     PYTHONPATH="$PROJECT_ROOT" python io/pt_to_cif.py \
         --save_pt "$PREDICTION_PATH" \
-        --num_samples 10 \
+        --num_samples 1 \
         --num_cpus 4
     
     # 检查第二步是否成功
