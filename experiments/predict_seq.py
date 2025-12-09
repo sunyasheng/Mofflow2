@@ -146,7 +146,12 @@ class Predictor:
         all_sequences = all_sequences[:total_samples]
 
         # Save predictions
-        save_path = self.inference_dir / f"preds_samples-{self._infer_cfg.total_samples}.json"
+        # Include target_property in filename for conditional models
+        if self._cfg.model.get('conditional', False):
+            target_prop = self._infer_cfg.get('target_property', 'unspecified')
+            save_path = self.inference_dir / f"preds_samples-{self._infer_cfg.total_samples}_target-{target_prop}.json"
+        else:
+            save_path = self.inference_dir / f"preds_samples-{self._infer_cfg.total_samples}.json"
         save_path.write_text(json.dumps(all_sequences, indent=2))
         log.info(f"Saved predictions to {save_path}")
 
