@@ -11,8 +11,8 @@ PROJECT_ROOT="/ibex/user/suny0a/Proj/MOFFlow-2"
 # 检查点选择 (取消注释想要使用的检查点)
 CKPT_PATH="$PROJECT_ROOT/logs/mof-gen/csp_20251129_095557/ckpt/epoch_65-step_613243-loss_1.3635.ckpt"  # 自己训练的模型
 
-# METAL_LIB_PATH="$PROJECT_ROOT/data/metals/metal_lib_train.pkl"
-METAL_LIB_PATH=/ibex/project/c2318/material_discovery/MOFFLOW2_data/metals/gen/metal_lib_train.pkl
+METAL_LIB_PATH="$PROJECT_ROOT/data/metals/metal_lib_train.pkl"
+# METAL_LIB_PATH=/ibex/project/c2318/material_discovery/MOFFLOW2_data/metals/gen/metal_lib_train.pkl
 
 # 定义所有要处理的 target_property 值
 TARGET_PROPERTIES=(0.5 0.6 0.7 0.8 0.9 1.0)
