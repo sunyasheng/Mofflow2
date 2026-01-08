@@ -1,8 +1,13 @@
 #!/bin/bash
 # 运行 MOFFlow-2 预处理脚本
 
-# 设置环境变量
-export PROJECT_ROOT=$(pwd)
+# 如果存在 .env 文件，先加载它
+if [ -f .env ]; then
+    source .env
+fi
+
+# 设置/覆盖环境变量（确保使用正确的路径）
+export PROJECT_ROOT=${PROJECT_ROOT:-$(pwd)}
 export DATA_DIR=/ibex/project/c2318/material_discovery/clean_data/preprocessed_data/MOF-DB-1.1
 
 # 验证路径是否存在
@@ -26,6 +31,10 @@ echo "数据目录: $DATA_DIR"
 echo "LMDB 文件: $DATA_DIR/lmdb/MetalOxo.lmdb"
 echo "Split 目录: $DATA_DIR/splits/csp"
 echo "=========================================="
+echo ""
+echo "环境变量检查:"
+echo "  PROJECT_ROOT=$PROJECT_ROOT"
+echo "  DATA_DIR=$DATA_DIR"
 echo ""
 
 # 运行预处理脚本
