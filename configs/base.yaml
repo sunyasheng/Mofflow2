@@ -6,7 +6,7 @@ defaults:
   - logger
 
 preprocess:
-  task: gen # [gen, csp]
+  task: csp # [gen, csp]
   num_cpus: 60
   lmdb_dir: ${paths.data_dir}/lmdb
   split_dir: ${paths.data_dir}/splits
