@@ -18,7 +18,9 @@ preprocess:
     max_atoms: 200
     max_cps: 20
     prop_list:
-    - CO2_uptake (mmol/g)
+    # 数据中实际存在的 CO2 相关属性（根据检查结果）
+    # 如果预处理阶段不需要属性，可以设置为空列表 []
+    - uptake_CO2_0.0004bar_mmolg-1  # CO2 吸附量 (最接近原来的 CO2_uptake)
   mof_matcher:
     optimizer:
       steps: 200
