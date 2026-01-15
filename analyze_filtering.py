@@ -48,14 +48,38 @@ def analyze_mofchecker_failures(data_dir, task='csp'):
             print(f"  {status:15s}: {count:6d} 条目")
         print()
         
-        # 计算失败率
-        total_failed = sum(total_failures.values())
-        print(f"总失败数: {total_failed:,} 条目")
+        # 计算失败率（不包括 success）
+        total_failed = sum(count for status, count in total_failures.items() if status != 'success')
+        total_processed = sum(total_failures.values())
+        success_count = total_failures.get('success', 0)
         
-        # 从之前的统计我们知道 Step 3 有 18,355 条目，Step 5 有 9,317 条目
-        # 所以失败数应该是 18,355 - 9,317 = 9,038
-        print(f"预期失败数: 9,038 条目 (从 Step 3 的 18,355 到 Step 5 的 9,317)")
+        print("=" * 80)
+        print("失败统计汇总:")
+        print("=" * 80)
+        print(f"总处理数: {total_processed:,} 条目")
+        print(f"成功数: {success_count:,} 条目")
+        print(f"总失败数: {total_failed:,} 条目 ({total_failed/total_processed*100:.1f}%)")
         print()
+        
+        if total_failed > 0:
+            print("失败原因分布:")
+            for status, count in sorted(total_failures.items(), key=lambda x: x[1], reverse=True):
+                if status != 'success':
+                    percentage = count / total_failed * 100
+                    print(f"  {status:15s}: {count:6d} 条目 ({percentage:5.1f}%)")
+            print()
+            
+            # 详细说明各失败原因
+            print("失败原因说明:")
+            if 'invalid' in total_failures:
+                print(f"  invalid ({total_failures['invalid']:,} 条目): MOFChecker 验证失败")
+                print("    可能原因: 原子重叠、配位异常、孤立分子、异常电荷、")
+                print("              非多孔结构、3D连通性问题等")
+            if 'rmsd_none' in total_failures:
+                print(f"  rmsd_none ({total_failures['rmsd_none']:,} 条目): MOF 匹配失败，无法计算 RMSD")
+            if 'exception' in total_failures:
+                print(f"  exception ({total_failures['exception']:,} 条目): 处理过程中发生异常")
+            print()
 
 def analyze_filtering_details(data_dir, task='csp'):
     """详细分析各步骤的过滤情况"""
@@ -170,6 +194,76 @@ def analyze_filtering_details(data_dir, task='csp'):
     print(f"2. 最终保留率: {step5_total/original_total*100:.1f}% ({step5_total:,}/{original_total:,})")
     print(f"3. 总过滤率: {(original_total-step5_total)/original_total*100:.1f}% ({original_total-step5_total:,}/{original_total:,})")
     print()
+    print("=" * 80)
+    print("MOFChecker 验证标准 (来自 utils/check_mof_validity.py):")
+    print("=" * 80)
+    print("必须满足的条件:")
+    print("  ✓ has_carbon: True (必须有碳)")
+    print("  ✓ has_hydrogen: True (必须有氢)")
+    print("  ✓ has_metal: True (必须有金属)")
+    print("  ✓ is_porous: True (必须多孔)")
+    print()
+    print("必须不满足的条件 (否则标记为 invalid):")
+    print("  ✗ has_atomic_overlaps: False (无原子重叠)")
+    print("  ✗ has_overcoordinated_c/n/h: False (C/N/H 配位不过度)")
+    print("  ✗ has_undercoordinated_c/n/rare_earth/alkali_alkaline: False (配位不不足)")
+    print("  ✗ has_lone_molecule: False (无孤立分子)")
+    print("  ✗ has_high_charges: False (无异常电荷)")
+    print("  ✗ has_suspicicious_terminal_oxo: False (无非正常末端氧)")
+    print("  ✗ has_geometrically_exposed_metal: False (无几何暴露金属)")
+    print()
+    print("注意: has_3d_connected_graph 在验证中被跳过")
+    print()
+
+def print_mofchecker_explanation():
+    """解释 MOFChecker 失败原因的含义"""
+    print("=" * 80)
+    print("MOFChecker 失败原因说明")
+    print("=" * 80)
+    print()
+    print("失败类型说明:")
+    print()
+    print("1. invalid (8,271 条目, 91.5%):")
+    print("   MOFChecker 验证失败，可能的原因包括:")
+    print("   - 缺少必需元素: 无碳、无氢、无金属")
+    print("   - 原子重叠: 原子间距离过近")
+    print("   - 配位问题: 过度配位或欠配位的原子")
+    print("   - 非多孔结构: is_porous = False")
+    print("   - 孤立分子: 存在未连接的分子片段")
+    print("   - 高电荷: 存在异常高的原子电荷")
+    print("   - 可疑末端氧: 存在不合理的末端氧原子")
+    print("   - 几何暴露金属: 金属原子几何位置不合理")
+    print()
+    print("2. rmsd_none (625 条目, 6.9%):")
+    print("   MOF matching 步骤失败，无法计算 RMSD")
+    print("   - 匹配坐标生成失败")
+    print("   - 结构匹配算法无法找到有效匹配")
+    print()
+    print("3. exception (142 条目, 1.6%):")
+    print("   处理过程中发生异常错误")
+    print("   - 结构构建失败")
+    print("   - MOFChecker 运行时错误")
+    print("   - 数据格式问题")
+    print()
+    print("=" * 80)
+    print("改进建议:")
+    print("=" * 80)
+    print()
+    print("1. 对于 invalid 失败 (91.5%):")
+    print("   - 检查 MOFChecker 的验证标准是否过于严格")
+    print("   - 考虑放宽某些条件（如 is_porous、配位检查）")
+    print("   - 分析哪些检查失败最多，针对性调整")
+    print()
+    print("2. 对于 rmsd_none 失败 (6.9%):")
+    print("   - 增加 MOF matching 的优化迭代次数")
+    print("   - 调整匹配算法的容差参数")
+    print("   - 检查金属库是否完整")
+    print()
+    print("3. 对于 exception 失败 (1.6%):")
+    print("   - 查看详细错误日志")
+    print("   - 检查异常数据的特征")
+    print("   - 可能需要预处理修复某些结构问题")
+    print()
 
 def main():
     default_data_dir = "/ibex/project/c2318/material_discovery/clean_data/preprocessed_data/MOF-DB-1.1/lmdb"
@@ -185,6 +279,8 @@ def main():
     analyze_filtering_details(data_dir, task)
     print()
     analyze_mofchecker_failures(data_dir, task)
+    print()
+    print_mofchecker_explanation()
 
 if __name__ == "__main__":
     main()
