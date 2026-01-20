@@ -108,7 +108,7 @@ class CheckMOF:
 @hydra.main(version_base=None, config_path=str(PROJECT_ROOT / "configs"), config_name="base.yaml")
 def main(cfg: DictConfig):
     checker = CheckMOF(cfg=cfg)
-    # checker.process(split="train")
+    checker.process(split="train")
     checker.process(split="val")
 
 
