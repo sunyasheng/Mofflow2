@@ -39,8 +39,21 @@ echo "  PROJECT_ROOT=$PROJECT_ROOT"
 echo "  DATA_DIR=$DATA_DIR"
 echo ""
 
-# 运行预处理脚本
+# 设置日志文件路径
+# 如果通过环境变量 LOG_FILE 指定了日志文件，使用它；否则自动生成
+if [ -z "$LOG_FILE" ]; then
+    LOG_FILE="${PROJECT_ROOT}/logs/preprocess_DB20_$(date +%Y%m%d_%H%M%S).log"
+fi
+
+# 确保日志目录存在
+mkdir -p "$(dirname "$LOG_FILE")"
+
+echo "日志文件: $LOG_FILE"
+echo "=========================================="
+echo ""
+
+# 运行预处理脚本，使用 tee 同时输出到终端和日志文件
 # 可选参数：
 # --mof-matching-repeat N: 指定 MOF matching 步骤重复次数（默认 3）
 # --run-conversion: 运行格式转换步骤（默认不运行）
-python preprocess.py "$@"
+python preprocess.py "$@" 2>&1 | tee "$LOG_FILE"
