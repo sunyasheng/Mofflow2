@@ -4,8 +4,8 @@ paths:
   logger_dir: ${paths.root_dir}/logs
   ckpt_dir: ${paths.log_dir}/ckpt
   inference_dir: ${paths.log_dir}/inference
-  # 必须设置环境变量 DATA_DIR，如果未设置会报错
-  data_dir: ${oc.env:DATA_DIR,!}
+  # 必须设置环境变量 DATA_DIR，如果未设置会返回 None 并在使用时报错
+  data_dir: ${oc.env:DATA_DIR}
   # 如果需要硬编码路径，取消下面的注释并注释掉上面的行
   # data_dir: /ibex/project/c2318/material_discovery/clean_data/preprocessed_data/MOF-DB-1.1
   # data_dir: /ibex/project/c2318/material_discovery/MOFFLOW2_data
