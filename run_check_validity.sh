@@ -63,5 +63,15 @@ echo "  DATA_DIR=$DATA_DIR"
 echo "  PROJECT_ROOT=$PROJECT_ROOT"
 echo ""
 
-# 运行 check_mof_validity.py，使用 tee 同时输出到终端和日志文件
-python preprocess/check_mof_validity.py "$@" 2>&1 | tee "$LOG_FILE"
+# 验证环境变量是否真的被设置（在 Python 中也会检查）
+python -c "import os; print(f'Python 环境中的 DATA_DIR: {os.environ.get(\"DATA_DIR\", \"NOT SET\")}')" 2>&1 | tee -a "$LOG_FILE"
+
+echo ""
+echo "=========================================="
+echo "开始运行 check_mof_validity.py"
+echo "=========================================="
+echo ""
+
+# 运行 check_mof_validity.py，使用 Hydra 命令行参数直接覆盖配置
+# 使用 paths.data_dir 参数直接设置数据目录，确保使用正确的路径
+python preprocess/check_mof_validity.py paths.data_dir="$DATA_DIR" "$@" 2>&1 | tee -a "$LOG_FILE"
