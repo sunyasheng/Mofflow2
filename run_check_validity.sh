@@ -58,6 +58,10 @@ mkdir -p "$(dirname "$LOG_FILE")"
 echo "日志文件: $LOG_FILE"
 echo "=========================================="
 echo ""
+echo "环境变量验证:"
+echo "  DATA_DIR=$DATA_DIR"
+echo "  PROJECT_ROOT=$PROJECT_ROOT"
+echo ""
 
 # 运行 check_mof_validity.py，使用 tee 同时输出到终端和日志文件
 python preprocess/check_mof_validity.py "$@" 2>&1 | tee "$LOG_FILE"
