@@ -42,7 +42,7 @@ echo ""
 # 设置日志文件路径
 # 如果通过环境变量 LOG_FILE 指定了日志文件，使用它；否则自动生成
 if [ -z "$LOG_FILE" ]; then
-    LOG_FILE="${PROJECT_ROOT}/logs/preprocess_DB21_$(date +%Y%m%d_%H%M%S).log"
+    LOG_FILE="${PROJECT_ROOT}/logs/preprocess_DB11_$(date +%Y%m%d_%H%M%S).log"
 fi
 
 # 确保日志目录存在
