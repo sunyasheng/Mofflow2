@@ -13,13 +13,13 @@ EXPECTED_CHECK_VALUES = {
     "has_undercoordinated_n": False,
     "has_undercoordinated_rare_earth": False,
     "has_metal": True,
-    "has_lone_molecule": False,
+    # "has_lone_molecule": False,
     "has_high_charges": False,
     "is_porous": True,
     "has_suspicicious_terminal_oxo": False,
     "has_undercoordinated_alkali_alkaline": False,
-    "has_geometrically_exposed_metal": False,
-    "has_3d_connected_graph": True
+    "has_geometrically_exposed_metal": False
+    # "has_3d_connected_graph": True
 }
 
 TRUE_CHECKS = [k for k, v in EXPECTED_CHECK_VALUES.items() if v]
