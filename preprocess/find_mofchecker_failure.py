@@ -62,6 +62,9 @@ class CheckMOF:
     def __init__(self, cfg: DictConfig):
         process_cfg = cfg.preprocess
 
+        # Task
+        self.task = process_cfg.task  # 'gen' or 'csp'
+
         # Directories
         self.lmdb_dir = process_cfg.lmdb_dir
         self.split_dir = process_cfg.split_dir
@@ -76,14 +79,20 @@ class CheckMOF:
         # Start timer
         start_time = time.time()
 
+        # Set up base directory (same as check_mof_validity.py)
+        base_dir = f"{self.lmdb_dir}/{self.task}"
+
         # Load split indices
-        split_file = f"{self.split_dir}/{split}_split.txt"
+        split_file = f"{self.split_dir}/{self.task}/{split}_split.txt"
+        if not os.path.exists(split_file):
+            # Fallback to old path structure
+            split_file = f"{self.split_dir}/{split}_split.txt"
         split_idx = np.loadtxt(split_file, dtype=int)
 
         # Read data
         data_dict = {}
-        # src_env = read_lmdb(f"{self.lmdb_dir}/MetalOxo_feats_{split}.lmdb")
-        src_env = read_lmdb(f"{self.lmdb_dir}/MetalOxo_matched_{split}_3.lmdb") # TODO: Remove
+        # src_env = read_lmdb(f"{base_dir}/MetalOxo_feats_{split}.lmdb")
+        src_env = read_lmdb(f"{base_dir}/MetalOxo_matched_{split}_3.lmdb")  # TODO: Remove
         with src_env.begin() as src_txn:
             for idx in tqdm(split_idx, desc="Reading data"):
                 key_bytes = f"{idx}".encode('ascii')
@@ -98,8 +107,11 @@ class CheckMOF:
         filtered_list = [item for item in filtered_list if item is not None]
 
         # Write extracted failures with pickle
-        with open(f"{self.data_dir}/invalid_mofs_matched_{split}.pkl", "wb") as f: # TODO: remove matched
+        output_file = f"{base_dir}/invalid_mofs_matched_{split}.pkl"
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        with open(output_file, "wb") as f:  # TODO: remove matched
             pickle.dump(filtered_list, f)
+        print(f"INFO:: Saved {len(filtered_list)} invalid MOFs to {output_file}")
         
         # End timer
         print(f"INFO:: Time taken: {time.time() - start_time:.4f} s")
