@@ -31,6 +31,7 @@ def check_mof(structure: Structure, descriptors=None):
     checker = MOFChecker(structure)
     desc = checker.get_mof_descriptors(descriptors)
     all_check = []
+    import pdb; pdb.set_trace()
     for k, v in desc.items():
         if type(v) == bool:
             if k == "has_3d_connected_graph":
