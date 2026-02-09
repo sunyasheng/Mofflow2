@@ -26,15 +26,16 @@ TRUE_CHECKS = [k for k, v in EXPECTED_CHECK_VALUES.items() if v]
 
 def check_mof(structure: Structure, descriptors=None):
     """
-    Only thing not checked is has_lone_molecule
+    Check MOF validity using MOFChecker.
+    Note: has_3d_connected_graph and has_lone_molecule are ignored (not used for valid/invalid determination).
     """
     checker = MOFChecker(structure)
     desc = checker.get_mof_descriptors(descriptors)
     all_check = []
-    import pdb; pdb.set_trace()
     for k, v in desc.items():
-        if type(v) == bool:
-            if k == "has_3d_connected_graph":
+        if isinstance(v, bool):
+            # Ignore these checks (they don't affect valid/invalid determination)
+            if k in ["has_3d_connected_graph", "has_lone_molecule"]:
                 continue
             if k in ["has_carbon", "has_hydrogen", "has_metal", "is_porous"]:
                 all_check.append(int(v))
@@ -48,11 +49,15 @@ def get_failed_checks(desc: dict):
     - desc: dict, output from check_mof
     Returns:
     - a list of all failed keys
+    Note: has_3d_connected_graph and has_lone_molecule are ignored (same as check_mof)
     """
     failed_checks = []
 
     for k, v in desc.items():
         if not isinstance(v, bool):
+            continue
+        # Ignore the same checks that are ignored in check_mof
+        if k in ["has_3d_connected_graph", "has_lone_molecule"]:
             continue
         if k in TRUE_CHECKS:
             if not v:
