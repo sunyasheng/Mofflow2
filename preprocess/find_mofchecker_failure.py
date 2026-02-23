@@ -2,7 +2,6 @@
 Check MOF validity. Filter out MOFs that do not meet the criteria.
 """
 import os
-import pdb
 import time
 import hydra
 import pickle
@@ -14,6 +13,7 @@ from omegaconf import DictConfig
 from pymatgen.core import Structure
 from utils.lmdb import read_lmdb, write_lmdb
 from utils.check_mof_validity import check_mof
+import utils.check_mof_validity as _check_mof_module
 from utils.environment import PROJECT_ROOT
 
 # Export (TODO: before import)
@@ -75,6 +75,7 @@ class CheckMOF:
         self.num_cpus = process_cfg.num_cpus
 
     def process(self, split="train"):
+        print(f"utils.check_mof_validity __file__: {_check_mof_module.__file__}")
         print(f"Checking {split} split...")
 
         # Start timer
@@ -104,8 +105,6 @@ class CheckMOF:
         src_env.close()
 
         # Process data
-        print("base_dir:", base_dir)
-        pdb.set_trace()
         filtered_list = Parallel(n_jobs=self.num_cpus)(delayed(process_matched_one)(idx, value) for idx, value in tqdm(data_dict.items()))
         filtered_list = [item for item in filtered_list if item is not None]
 
