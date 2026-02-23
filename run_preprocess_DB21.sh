@@ -9,7 +9,7 @@ fi
 # 设置/覆盖环境变量（确保使用正确的路径）
 export PROJECT_ROOT=${PROJECT_ROOT:-$(pwd)}
 # export DATA_DIR=/ibex/project/c2318/material_discovery/clean_data/preprocessed_data/MOF-DB-1.1
-export DATA_DIR=/ibex/project/c2318/material_discovery/clean_data/preprocessed_data/MOF-DB-2.1/Subset_78k
+export DATA_DIR=/home/suny0a/mof_root/material_discovery/clean_data/preprocessed_data/MOF-DB-2.1/Subset_78k
 # export DATA_DIR=/ibex/project/c2318/material_discovery/clean_data/preprocessed_data/MOF-DB-2.0
 
 # 验证路径是否存在

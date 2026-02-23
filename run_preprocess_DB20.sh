@@ -10,7 +10,7 @@ fi
 export PROJECT_ROOT=${PROJECT_ROOT:-$(pwd)}
 # export DATA_DIR=/ibex/project/c2318/material_discovery/clean_data/preprocessed_data/MOF-DB-1.1
 # export DATA_DIR=/ibex/project/c2318/material_discovery/clean_data/preprocessed_data/MOF-DB-2.1/Subset_78k
-export DATA_DIR=/ibex/project/c2318/material_discovery/clean_data/preprocessed_data/MOF-DB-2.0
+export DATA_DIR=/home/suny0a/mof_root/material_discovery/clean_data/preprocessed_data/MOF-DB-2.0
 
 # 验证路径是否存在
 if [ ! -f "$DATA_DIR/lmdb/MetalOxo.lmdb" ]; then
