@@ -2,6 +2,10 @@
 Check MOF validity. Filter out MOFs that do not meet the criteria.
 """
 import os
+import sys
+# 保证从项目根可 import utils（用 python preprocess/find_mofchecker_failure.py 时）
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import time
 import hydra
 import pickle
