@@ -2,6 +2,7 @@
 Check MOF validity. Filter out MOFs that do not meet the criteria.
 """
 import os
+import pdb
 import time
 import hydra
 import pickle
@@ -103,6 +104,8 @@ class CheckMOF:
         src_env.close()
 
         # Process data
+        print("base_dir:", base_dir)
+        pdb.set_trace()
         filtered_list = Parallel(n_jobs=self.num_cpus)(delayed(process_matched_one)(idx, value) for idx, value in tqdm(data_dict.items()))
         filtered_list = [item for item in filtered_list if item is not None]
 
