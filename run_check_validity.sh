@@ -8,10 +8,10 @@ fi
 
 # 设置/覆盖环境变量（确保使用正确的路径）
 export PROJECT_ROOT=${PROJECT_ROOT:-$(pwd)}
-# 根据要处理的数据集修改 DATA_DIR
-export DATA_DIR=/ibex/project/c2318/material_discovery/clean_data/preprocessed_data/MOF-DB-1.1
-# export DATA_DIR=/ibex/project/c2318/material_discovery/clean_data/preprocessed_data/MOF-DB-2.1/Subset_78k
-# export DATA_DIR=/ibex/project/c2318/material_discovery/clean_data/preprocessed_data/MOF-DB-2.0
+# 根据要处理的数据集修改 DATA_DIR（本地挂载路径）
+export DATA_DIR=/home/suny0a/mof_root/material_discovery/clean_data/preprocessed_data/MOF-DB-1.1
+# export DATA_DIR=/home/suny0a/mof_root/material_discovery/clean_data/preprocessed_data/MOF-DB-2.1/Subset_78k
+# export DATA_DIR=/home/suny0a/mof_root/material_discovery/clean_data/preprocessed_data/MOF-DB-2.0
 
 # 检查 DATA_DIR 是否设置
 if [ -z "$DATA_DIR" ]; then
