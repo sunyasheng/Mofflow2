@@ -2,6 +2,10 @@
 Check MOF validity. Filter out MOFs that do not meet the criteria.
 """
 import os
+import sys
+# 保证用 python preprocess/check_mof_validity.py 时能从项目根 import utils
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import time
 import json
 import hydra
