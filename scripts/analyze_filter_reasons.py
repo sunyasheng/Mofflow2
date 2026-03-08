@@ -30,13 +30,14 @@ from mofdiff.common.atomic_utils import frac2cart, compute_distance_matrix
 
 def get_filter_reason(idx, value, max_bbs=20, max_atoms=200, max_cps=20, prop_list=None):
     """
-    返回 (idx, reason_str)。若通过则 reason_str 为 None。
+    返回 (idx, reason_str, extra)。若通过则 reason_str 为 None。
+    extra: 当 reason 为 num_components>20 时为 int(num_components)，否则为 None。
     原因顺序与 preprocess/filter.py 一致，返回第一个失败原因。
     """
     try:
         data = pickle.loads(value)
     except Exception:
-        return idx, "pickle_load_error"
+        return idx, "pickle_load_error", None
 
     if not prop_list:
         prop_list = []
@@ -46,33 +47,33 @@ def get_filter_reason(idx, value, max_bbs=20, max_atoms=200, max_cps=20, prop_li
         ).view(1, -1)
         data["prop_dict"] = {prop: data.prop_dict[prop] for prop in prop_list}
     except Exception:
-        return idx, "prop_missing_or_invalid"
+        return idx, "prop_missing_or_invalid", None
 
     # ----- MOF-level (与 mof_criterion 顺序一致) -----
     try:
         if data.num_components > max_bbs:
-            return idx, "num_components>20"
+            return idx, "num_components>20", int(data.num_components)
         if data.y.isnan().sum() > 0:
-            return idx, "y_has_nan"
+            return idx, "y_has_nan", None
         if data.y.isinf().sum() > 0:
-            return idx, "y_has_inf"
+            return idx, "y_has_inf", None
         cell = lattice_params_to_matrix_torch(data.lengths, data.angles).squeeze()
         distances = compute_distance_matrix(
             cell, frac2cart(data.cg_frac_coords, cell)
         ).fill_diagonal_(5.0)
         if (distances < 1.0).any():
-            return idx, "mof_short_distance"
+            return idx, "mof_short_distance", None
     except Exception:
-        return idx, "mof_exception"
+        return idx, "mof_exception", None
 
     # ----- BB-level (任一 bb 不通过即返回该原因) -----
     for bb in data.bbs:
         try:
             bb.num_cps = bb.is_anchor.long().sum()
             if bb.num_atoms > max_atoms:
-                return idx, "bb_num_atoms>200"
+                return idx, "bb_num_atoms>200", None
             if bb.num_cps > max_cps:
-                return idx, "bb_num_cps>20"
+                return idx, "bb_num_cps>20", None
             cart_coords = frac_to_cart_coords(
                 bb.frac_coords, bb.lengths, bb.angles, bb.num_atoms
             )
@@ -83,13 +84,13 @@ def get_filter_reason(idx, value, max_bbs=20, max_atoms=200, max_cps=20, prop_li
                 (cart_coords[i] - cart_coords[j]).pow(2).sum(dim=-1).sqrt()
             )
             if pdist.min() <= 0.25:
-                return idx, "bb_min_dist<=0.25"
+                return idx, "bb_min_dist<=0.25", None
             if bond_dist.max() >= 5.0:
-                return idx, "bb_bond_dist>=5.0"
+                return idx, "bb_bond_dist>=5.0", None
         except Exception:
-            return idx, "bb_exception"
+            return idx, "bb_exception", None
 
-    return idx, None  # 通过
+    return idx, None, None  # 通过
 
 
 def main():
@@ -207,10 +208,30 @@ def main():
         delayed(fn)(idx, value) for idx, value in tqdm(data_items, desc="Reasons")
     )
 
-    # 汇总
-    reasons = [r for _, r in results if r is not None]
-    passed = sum(1 for _, r in results if r is None)
+    # 汇总（results 为 (idx, reason, extra)）
+    reasons = [r for _, r, _ in results if r is not None]
+    passed = sum(1 for _, r, _ in results if r is None)
     counter = Counter(reasons)
+
+    # 因 num_components>20 被过滤的，统计 num_components 分布
+    num_components_list = [extra for _, r, extra in results if r == "num_components>20" and extra is not None]
+    if num_components_list:
+        nc_counter = Counter(num_components_list)
+        nc_sorted = sorted(nc_counter.items())
+        print("\n========== num_components 分布（仅统计因 num_components>20 被过滤的）==========")
+        print(f"样本数: {len(num_components_list)}")
+        print(f"最小值: {min(nc_sorted)[0]}, 最大值: {max(nc_sorted)[0]}")
+        print(f"中位数: {np.median(num_components_list):.0f}")
+        for p in [50, 75, 90, 95, 99]:
+            q = np.percentile(num_components_list, p)
+            print(f"  {p}% 分位: {q:.0f}  （若设 max_bbs={int(np.ceil(q))} 可保留约 {p}% 的此类样本）")
+        print("\n各取值数量（前 30 个）:")
+        for nc, count in nc_sorted[:30]:
+            pct = 100.0 * count / len(num_components_list)
+            print(f"  num_components={nc}: {count} ({pct:.1f}%)")
+        if len(nc_sorted) > 30:
+            print(f"  ... 共 {len(nc_sorted)} 种取值")
+        print("==================================\n")
 
     print("\n========== 过滤原因统计 ==========")
     print(f"通过: {passed}")
@@ -224,7 +245,7 @@ def main():
     if args.out:
         with open(args.out, "w") as f:
             f.write("idx,reason\n")
-            for idx, reason in results:
+            for idx, reason, _ in results:
                 if reason is not None:
                     f.write(f"{idx},{reason}\n")
         print(f"已写入: {args.out}")
